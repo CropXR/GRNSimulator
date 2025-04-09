@@ -1,0 +1,22 @@
+#In GeneNetWeaver, the workflow to simulate a network is first to extract it from an existing "real" GRN, export the network and then simulate it. I know added the workflow to create a network given a network generating
+#algorithm. his can be done with the following command:
+
+java -jar CropXRSimulator.jar --create -c sandbox/settings.txt --network-type=1 --num-genes=1000 --sparsity=0.25 --num-modules=10 --output-net-format=1 --keep-self-interactions 
+--output-path sandbox --network-name test_scalefree
+
+#Here the network-type sepcifies the algorithm to use. For now, we implemented random (network-type=0) and modular-scale-free (network-type=1). Random isn't advised except for comparison purposes. 
+#The sparsity flag will determine the fraction between edges and nodes (with 0.25 around 3 times as many edges as nodes, as this parameter determines the probability of adding a new edge compared to adding a new node.
+#The number of modules determines how many distinct modules are created. Nodes within modules have a higher probability to be connected compared to nodes in different modules. 
+#There are some different options for output-net-format. To get a dynamic GRN that you can simulate, use --output-net-format=4 (to get SBML). To get a static network (ehich is useful to study the network characteristics
+#we recommend  --output-net-format=1 (GML). We wrote a python script to analyze the static network and get some key characteristics:
+
+python bin/analyzeGraph.py sandbox/test_scalefree.gml
+#Note that some python packages, especially matplotlib and igraph need to be installed. 
+
+#if you are happy with the network you can create a dynamic network out of it like this:
+java -jar CropXRSimulator.jar --transform --input-net sandbox/test_scalefree.gml --output-net-format=4 -c sandbox/settings.txt
+
+#And finally, you can simulate the network like this:
+java -jar CropXRSimulator.jar --simulate -c sandbox/fastsettings.txt --input-net test_scalefree.xml --output-path /data/interos/mho/tools/genenetweaver/sandbox
+
+ 
