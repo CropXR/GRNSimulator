@@ -21,9 +21,9 @@ import ch.epfl.lis.gnwgui.idesktop.IElement;
 import ch.epfl.lis.networks.Structure;
 import ch.epfl.lis.utilities.filefilters.FilenameUtilities;
 
-import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
-import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
+//import com.sun.org.apache.xerces.internal.dom.DocumentImpl;
+//import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+//import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 
 public class NetworkDesktopMap
 {
@@ -71,33 +71,33 @@ public class NetworkDesktopMap
 		counter_ = 0;
 		
 		// Document (Xerces implementation only).
-		xmldoc_ = new DocumentImpl();
-		Element root = xmldoc_.createElement("gnw_desktop");
+		//xmldoc_ = new DocumentImpl();
+		//Element root = xmldoc_.createElement("gnw_desktop");
 		
-		ArrayList<IElement> list = desktop_.getContent().get(0);
+		//ArrayList<IElement> list = desktop_.getContent().get(0);
 		
 		// save recursively all the elements on the desktop
-		for (IElement element : list)
-			saveElementRecursively(root, element);
+		//for (IElement element : list)
+		//	saveElementRecursively(root, element);
 		  
-		xmldoc_.appendChild(root);
+		//xmldoc_.appendChild(root);
 		
-		FileOutputStream fos = new FileOutputStream(xmlFileAbsPath);
-		OutputFormat of = new OutputFormat("XML","ISO-8859-1",true);
-		of.setIndent(1);
-		of.setIndenting(true);
-		XMLSerializer serializer = new XMLSerializer(fos, of);
-		serializer.asDOMSerializer();
-		serializer.serialize(xmldoc_.getDocumentElement());
-		fos.close();
+		//FileOutputStream fos = new FileOutputStream(xmlFileAbsPath);
+		//OutputFormat of = new OutputFormat("XML","ISO-8859-1",true);
+		//of.setIndent(1);
+		//of.setIndenting(true);
+		//XMLSerializer serializer = new XMLSerializer(fos, of);
+		//serializer.asDOMSerializer();
+		//serializer.serialize(xmldoc_.getDocumentElement());
+		//fos.close();
 		
 		// build a list of filenames
-		filenames_ = new ArrayList<String>(counter_);
+		//filenames_ = new ArrayList<String>(counter_);
 		
-		for (int i = 0; i < counter_; i++)
-			filenames_.add(rootFilename_ + i);
+		//for (int i = 0; i < counter_; i++)
+		//	filenames_.add(rootFilename_ + i);
 		
-		counter_ = 0;
+		//counter_ = 0;
 	}
 	
 	// ----------------------------------------------------------------------------

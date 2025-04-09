@@ -18,6 +18,7 @@ import ch.epfl.lis.gnw.BenchmarkGeneratorDream4;
 import ch.epfl.lis.gnw.CancelException;
 import ch.epfl.lis.gnw.GeneNetwork;
 import ch.epfl.lis.gnw.GnwSettings;
+import ch.epfl.lis.gnw.NetworkCreator;
 import ch.epfl.lis.gnw.Parser;
 import ch.epfl.lis.gnw.SubnetExtractor;
 import ch.epfl.lis.gnw.evaluation.PerformanceEvaluator;
@@ -26,6 +27,7 @@ import ch.epfl.lis.imod.ImodNetwork;
 import ch.epfl.lis.imod.LoggerManager;
 import ch.epfl.lis.networks.Node;
 import ch.epfl.lis.networks.Structure;
+import ch.epfl.lis.networks.ios.ParseException;
 
 import com.jgoodies.looks.plastic.PlasticLookAndFeel;
 import com.jgoodies.looks.plastic.PlasticXPLookAndFeel;
@@ -114,6 +116,11 @@ public class Main {
 									.setLongFlag("extract");
         extract.setHelp("Extracts subnetworks.");
         jsap.registerParameter(extract);
+       
+        Switch create = new Switch("create")
+				.setLongFlag("create");
+        create.setHelp("Create network.");    
+        jsap.registerParameter(create);
         
         Switch simulate = new Switch("simulate")
 									.setShortFlag('s') 
@@ -131,6 +138,64 @@ public class Main {
 									.setLongFlag("evaluate");
         evaluate.setHelp("Evaluate the performance of a network prediction.");
 		jsap.registerParameter(evaluate);
+        
+		
+        FlaggedOption numGenes = new FlaggedOption("numGenes")
+									.setStringParser(JSAP.INTEGER_PARSER)
+									.setDefault("200")
+									.setRequired(false)
+									.setLongFlag("num-genes");
+        numGenes.setHelp("Number of genes in the created network.");
+        jsap.registerParameter(numGenes);
+        
+		
+        FlaggedOption numModules = new FlaggedOption("numModules")
+									.setStringParser(JSAP.INTEGER_PARSER)
+									.setDefault("1")
+									.setRequired(false)
+									.setLongFlag("num-modules");
+        numModules.setHelp("Number of modules in the created network.");
+        jsap.registerParameter(numModules);
+        
+        FlaggedOption sparsity = new FlaggedOption("sparsity")
+				.setStringParser(JSAP.DOUBLE_PARSER)
+				.setDefault("0.25")
+				.setRequired(false)
+				.setLongFlag("sparsity");
+        sparsity.setHelp("Sparsity of the created network, should be between 0 and 1.");
+        jsap.registerParameter(sparsity);
+        
+        FlaggedOption groupingBias = new FlaggedOption("groupingBias")
+				.setStringParser(JSAP.DOUBLE_PARSER)
+				.setDefault("10.")
+				.setRequired(false)
+				.setLongFlag("grouping-bias");
+        groupingBias.setHelp(" Preferential attachment for within module edges.");         
+        jsap.registerParameter(groupingBias);
+        
+        FlaggedOption deltaIn = new FlaggedOption("deltaIn")
+				.setStringParser(JSAP.DOUBLE_PARSER)
+				.setDefault("100.")
+				.setRequired(false)
+				.setLongFlag("delta-in");
+        deltaIn.setHelp("Bias for choosing nodes from in-degree distribution.");    
+        jsap.registerParameter(deltaIn);  
+        
+        FlaggedOption deltaOut = new FlaggedOption("deltaOut")
+				.setStringParser(JSAP.DOUBLE_PARSER)
+				.setDefault("1.")
+				.setRequired(false)
+				.setLongFlag("delta-out");
+        deltaIn.setHelp("Bias for choosing nodes from out-degree distribution.");    
+        jsap.registerParameter(deltaOut);  
+        
+        FlaggedOption networkType = new FlaggedOption("networkType")
+				.setStringParser(JSAP.INTEGER_PARSER)
+				.setDefault("1")
+				.setRequired(false)
+				.setLongFlag("network-type");
+        networkType.setHelp("Specifies the type of network to create (0=Random, 1=Modular-Scale-Free).");
+        jsap.registerParameter(networkType);
         
         FlaggedOption inputNetwork = new FlaggedOption("inputNetwork")
 									.setStringParser(JSAP.STRING_PARSER)
@@ -290,6 +355,7 @@ public class Main {
     	log_.log(Level.INFO, "");
     	log_.log(Level.INFO, "Examples:");
     	log_.log(Level.INFO, "  Extraction: java -jar gnw-standalone.jar --extract -c settings.txt --input-net ecoli_transcriptional_network_regulonDB_6_7.tsv --random-seed --greedy-selection --subnet-size=50 --num-subnets=10 --output-net-format=4 --keep-self-interactions --output-path .");
+    	log_.log(Level.INFO, "  Creation: java -jar gnw-standalone.jar --create -c settings.txt --random-seed --output-net-format=4 --keep-self-interactions --output-path .");
     	log_.log(Level.INFO, "  Simulation: java -jar gnw-standalone.jar --simulate -c settings.txt --input-net InSilicoSize10-Yeast1.xml --output-path /home/thomas/devel/gnw-3_0/datasets");
     	log_.log(Level.INFO, "  Evaluation: java -jar gnw-standalone.jar --evaluate --goldstandard InSilicoSize10-Yeast1.xml --prediction InSilicoSize10-Yeast1-prediction.tsv");
     	log_.log(Level.INFO, "  Conversion (here TSV to DOT format): java -jar gnw-standalone.jar --transform -c settings.txt --input-net ecoli_transcriptional_network_regulonDB_6_7.tsv --output-net-format=2");
@@ -307,11 +373,13 @@ public class Main {
 		if (settings.getBoolean("simulate")) count++;
 		if (settings.getBoolean("evaluate")) count++;
 		if (settings.getBoolean("transform")) count++;
-		
+		if (settings.getBoolean("create")) count++;
+
 		if (count > 1)
 		{
 			log_.log(Level.INFO, "Only one of the following options must be specified:");
 			log_.log(Level.INFO, "                " + jsap.getByID("extract").getSyntax());
+			log_.log(Level.INFO, "                " + jsap.getByID("create").getSyntax());
 			log_.log(Level.INFO, "                " + jsap.getByID("simulate").getSyntax());
 			log_.log(Level.INFO, "                " + jsap.getByID("evaluate").getSyntax());
 			log_.log(Level.INFO, "                " + jsap.getByID("transform").getSyntax());
@@ -320,6 +388,37 @@ public class Main {
 		}
 
 		return (count == 1);
+	}
+	
+	public static NetworkElement createNetwork(JSAP jsap, JSAPResult settings) throws ParseException
+	{
+		NetworkElement element = null; // required, will contain the network
+		String name = null; // optional
+		
+		if (settings.userSpecified("networkName")) 
+		{
+			name = settings.getString("networkName");
+		}
+		
+		Integer type = settings.getInt("networkType");
+		if ( type < 0 || type >  NetworkCreator.NetworkType.values().length )
+		{
+			log_.log(Level.INFO, jsap.getByID("networkType").getSyntax() + " should be between 0 and " +  NetworkCreator.NetworkType.values().length );
+			System.exit(1);
+		}
+		else
+		{
+			NetworkCreator.NetworkType networkType = NetworkCreator.NetworkType.values()[type];
+			log_.log(Level.INFO, "Start network creation of type " + networkType.name());
+			NetworkCreator networkCreator = new NetworkCreator(networkType, settings.getInt("numGenes"), settings.getInt("numModules"), 
+					settings.getDouble("sparsity"), settings.getDouble("deltaIn"), settings.getDouble("deltaOut"),settings.getDouble("groupingBias"));
+			ImodNetwork network = networkCreator.createNetwork();
+			network.setId(name);
+			element= new StructureElement(name);
+			((StructureElement)element).setNetwork(network);		
+		}
+		
+		return element;
 	}
 	
 	// ---------------------------------------------------------------------------
@@ -777,6 +876,11 @@ public class Main {
 				{
 					NetworkElement element = loadNetwork(jsap, settings, inputNetwork, format);
 					extractNetworks(jsap, settings, element);
+				}
+				else if (settings.getBoolean("create"))
+				{
+					NetworkElement element = createNetwork(jsap, settings);
+					transformNetwork(jsap, settings, element);
 				}
 				else if (settings.getBoolean("simulate"))
 				{

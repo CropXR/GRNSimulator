@@ -76,8 +76,8 @@ import javax.swing.text.Document;
 
 import org.apache.commons.collections15.functors.ConstantTransformer;
 
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
+//import com.sun.image.codec.jpeg.JPEGCodec;
+//import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 import ch.epfl.lis.gnwgui.jungtransformers.ArrowShapeTransformer;
 import ch.epfl.lis.gnwgui.jungtransformers.EdgeArrowColorTransformer;
@@ -826,8 +826,8 @@ public class NetworkGraph {
 				c.paint(g2);
 				try {
 					OutputStream out = new FileOutputStream(file.getAbsolutePath());
-					JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
-					encoder.encode(myImage);
+					//JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(out);
+					//encoder.encode(myImage);
 					out.close();
 				} catch (Exception e) {
 					log_.log(Level.WARNING, "NetworkGraph::saveComponentAsJPEG(): " + e.getMessage(), e);
