@@ -415,21 +415,21 @@ public class GeneNetwork extends ImodNetwork {
 		species[size].setBoundaryCondition(true);
 		species[size].setConstant(true);
 		model.addSpecies(species[size]);
-  
-  
+		
 		// SET SYNTHESIS AND DEGRADATION REACTIONS FOR EVERY GENE
 		for (int i=0; i<size; i++) {
 
 			// the ID of gene i
 //			String currentGeneID = nodeIds_.get(i);
-			String currentGeneID = nodes_.get(i).getLabel();
+			Node current = nodes_.get(i);
+			String currentGeneID = current.getLabel();
 			// The modifiers (regulators) of gene i
-			ArrayList<Gene> inputIndexes = ((Gene)nodes_.get(i)).getInputGenes();
+			ArrayList<Gene> inputIndexes = ((Gene)current).getInputGenes();
   
 			// SYNTHESIS REACTION
 			KineticLaw kineticLaw = new KineticLaw ();
 			String reactionId = currentGeneID + "_synthesis";
-			String name = reactionId + ": " + ((Gene)nodes_.get(i)).toString();
+			String name = reactionId + ": " + ((Gene)current).toString();
 			Reaction reaction = new Reaction (reactionId, name);
 			reaction.setReversible (false);
 			reaction.addReactant(species[size]);
@@ -447,6 +447,9 @@ public class GeneNetwork extends ImodNetwork {
 				String id = names.get(p);// + "_" + currentGeneID;
 				kineticLaw.addParameter(new Parameter(id, id, values.get(p)));
 			}
+			String mathSynth = createSynthesisFormula((HillGene)current);
+			kineticLaw.setMath(mathSynth);
+
 			reaction.setKineticLaw(kineticLaw);
 			model.addReaction(reaction);
   
@@ -460,7 +463,8 @@ public class GeneNetwork extends ImodNetwork {
   
 			String id = names.get(0);
 			kineticLaw.addParameter(new Parameter(id, id, values.get(0)));
-			
+			String mathDeg = createDegradationFormula(current);
+			kineticLaw.setMath(mathDeg);
 			reaction.setKineticLaw (kineticLaw);
 			model.addReaction (reaction);
 		}
@@ -479,6 +483,185 @@ public class GeneNetwork extends ImodNetwork {
 		}
 		
 		return 0;
+	}
+	
+	/**
+	 * Create the MATHML strings for all regulatory modules
+	 * @param gene the gene to create the MathML for
+ 	 * @return Per Module, an ArrayList<String> that represents all lines of the MathML object
+	 */
+	private ArrayList<ArrayList<String>> createModulesFormula(HillGene gene)
+	{
+		//We create his formula as a vector of strings, such that we can fix the tabs later on
+		ArrayList<ArrayList<String>> moduleFormulas = new ArrayList<ArrayList<String>>();
+		int nextInput = 0;
+
+		for (int i = 0; i < gene.getRegulatoryModules().size(); i++)
+		{
+			int currInput = nextInput;
+			RegulatoryModule module = gene.getRegulatoryModules().get(i);
+			ArrayList<String> moduleFormula = new ArrayList<String>();
+			// get the inputs for this module
+			moduleFormula.add("<apply><divide/>");
+
+			//get the formula for the numerator
+			if (module.getNumActivators() == 0)
+			{
+				moduleFormula.add("\t<mn>1</mn>");
+			}
+			else if (module.getNumActivators() == 1)
+			{
+				String geneName = gene.getInputGenes().get(currInput++).getLabel();
+				createActivationFormula(currInput, moduleFormula, geneName, 0);
+			}
+			else
+			{
+				moduleFormula.add("\t<apply><times/>");
+
+				for (int j=0; j<module.getNumActivators(); j++)
+				{
+					String geneName = gene.getInputGenes().get(currInput++).getLabel();
+					createActivationFormula(currInput, moduleFormula, geneName, 1);
+				}
+				moduleFormula.add("\t</apply>");
+			}
+			currInput = nextInput;
+			//get the formula for the denominator
+
+			if( module.getNumInputs() == 1)
+			{
+				String geneName = gene.getInputGenes().get(currInput++).getLabel();
+				moduleFormula.add("\t<apply><plus/>");
+				moduleFormula.add("\t\t<cn>1</cn>");
+				createActivationFormula(currInput, moduleFormula, geneName, 1);
+				moduleFormula.add("\t</apply>");
+			}
+			else
+			{
+				moduleFormula.add("\t<apply><plus/>");
+				moduleFormula.add("\t\t<apply><times/>");
+				for (int j=0; j<module.getNumInputs(); j++)
+				{
+					String geneName = gene.getInputGenes().get(currInput++).getLabel();
+					moduleFormula.add("\t\t\t<apply><plus/>");
+					moduleFormula.add("\t\t\t\t<cn>1</cn>");
+					createActivationFormula(currInput, moduleFormula, geneName, 3);
+					moduleFormula.add("\t\t\t</apply>");
+				}
+				moduleFormula.add("\t\t</apply>");
+				moduleFormula.add("\t</apply>");
+			}
+			moduleFormula.add("</apply>");
+			 
+			moduleFormulas.add(moduleFormula);
+			nextInput = currInput;
+		}
+		
+		return moduleFormulas;
+	}
+
+	/**
+	 * Append the MATHML code to the current object
+	 * @param geneIndx index of the gene
+	 * @param moduleFormula MathML object to append to
+	 * @param geneName name of the gene
+	 */
+	private void createActivationFormula(int geneIndx, ArrayList<String> moduleFormula, String geneName, Integer numLeadingTabs)
+	{
+		//appends the mathML for the activation factor of this gene
+		moduleFormula.add("\t".repeat(numLeadingTabs) + "\t<apply><power/>");
+		moduleFormula.add("\t".repeat(numLeadingTabs) + "\t\t<apply><divide/>");
+		moduleFormula.add("\t".repeat(numLeadingTabs) + "\t\t\t<ci>" + geneName + "</ci>");
+		moduleFormula.add("\t".repeat(numLeadingTabs) + "\t\t\t<ci>k_" + geneIndx + "</ci>");
+		moduleFormula.add("\t".repeat(numLeadingTabs) + "\t\t</apply>");
+		moduleFormula.add("\t".repeat(numLeadingTabs) + "\t\t<ci>n_" + geneIndx + "</ci>");
+		moduleFormula.add("\t".repeat(numLeadingTabs) + "\t</apply>");
+	}
+	
+	/**
+	 * Create the MATHML string for the synthesis reaction of a gene
+	 * @param gene the gene in question
+ 	 * @return The MathML string
+	 */
+	private String createSynthesisFormula(HillGene gene) 
+	{
+		//This has to follow the logic of HillgGene.computeMRnaProductionRate precisely
+		String math = "\t\t<math xmlns=\"http://www.w3.org/1998/Math/MathML\">\n";
+		ArrayList<ArrayList<String>> mathModules = createModulesFormula(gene);
+		
+		if( gene.getRegulatoryModules().size() == 0)
+		{
+			math += "\t\t\t<apply><times/>\n";
+			math += "\t\t\t\t<ci> " + "cell" + "</ci>\n";
+			math += "\t\t\t\t<ci>max</ci>\n";
+			math += "\t\t\t\t<ci>a_0</ci>\n";
+			math += "\t\t\t</apply>\n";
+			math += "\t\t</math>\n";
+		}
+		else
+		{
+			math += "\t\t\t<apply><times/>\n";
+			math += "\t\t\t\t<ci> " + "cell" + "</ci>\n";
+			math += "\t\t\t\t<ci>max</ci>\n";
+			math += "\t\t\t\t<apply><plus/>\n";
+		
+			for (int i=0; i<Math.pow(2,gene.getRegulatoryModules().size()); i++) 
+			{
+				// binary representation of state i
+				String s = Integer.toBinaryString(i); // note, leading 0's are not included
+			
+				math += "\t\t\t\t\t<apply><times/>\n";
+				math += "\t\t\t\t\t\t<ci>a_" + i + "</ci>\n";
+
+				// if module j is active in this state, multiply with m_j, otherwise with (1-m_j)
+				for (int j=0; j<gene.getRegulatoryModules().size(); j++) 
+				{
+					// if s.length()-j-1 smaller than zero, the corresponding module is off (it's one of the leading zeros)
+					if (s.length()-j-1 >= 0 && s.charAt(s.length()-j-1) == '1')
+					{
+						for (String line : mathModules.get(j))
+						{
+							math += "\t\t\t\t\t\t" + line + "\n";
+						}
+					}
+					else
+					{
+						math += "\t\t\t\t\t\t<apply><minus/>\n";
+						math += "\t\t\t\t\t\t\t<cn>" + 1 + "</cn>\n";
+						for (String line : mathModules.get(j))
+						{
+							math += "\t\t\t\t\t\t\t" + line + "\n";
+						}
+						math += "\t\t\t\t\t\t</apply>\n";
+					}
+				}
+				math += "\t\t\t\t\t</apply>\n";
+			}
+			math += "\t\t\t\t</apply>\n";
+			math += "\t\t\t</apply>\n";
+
+			math += "\t\t</math>\n";
+		}
+
+		return math;
+	}
+
+	/**
+	 * Create the MATHML string for the degradation reaction of a gene
+	 * @param node the node of the gene in question
+ 	 * @return The MathML string
+	 */
+	private String createDegradationFormula(Node node) 
+	{
+		String math = "\t\t<math xmlns=\"http://www.w3.org/1998/Math/MathML\">\n"
+				+ "\t\t\t<apply>\n"
+				+ "\t\t\t\t<times/>\n"
+				+ "\t\t\t\t\t<ci> " + "cell" + "</ci>\n"
+				+ "\t\t\t\t\t<ci> " + "delta" + "</ci>\n"
+				+ "\t\t\t\t\t<ci> " + node.getLabel() + "</ci>\n"
+				+ "\t\t\t</apply>\n"
+				+ "\t\t</math>\n";
+		return math;
 	}
 	
 	// ----------------------------------------------------------------------------

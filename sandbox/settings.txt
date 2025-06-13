@@ -17,7 +17,7 @@ randomSeed = -1
 # Default output directory to save files, leave empty to use the default home directory
 outputDirectory = 
 # Model proteins and translation
-modelTranslation = 1
+modelTranslation = 0
 # Set true to ignore self-links (Gi->Gi) when saving gold standards in DREAM format
 ignoreAutoregulatoryInteractionsInEvaluation = 1
 # Set true to explicitly list all zero interactions when saving gold standards in DREAM format (DREAM3 and DREAM4 scripts require this)

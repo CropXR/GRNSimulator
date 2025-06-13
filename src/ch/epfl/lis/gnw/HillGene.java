@@ -381,10 +381,11 @@ public class HillGene extends Gene {
 			module.setIsEnhancer(isEnhancer);
 			
 			// chance of the module being a complex is 0.5
-			if (uniform.nextIntFromTo(0, 1) == 0)
-				module.setBindsAsComplex(true);
-			else
-				module.setBindsAsComplex(false);
+			//if (uniform.nextIntFromTo(0, 1) == 0)
+			//	module.setBindsAsComplex(true);
+			//else
+			//Disable bind as complex!
+			module.setBindsAsComplex(false);
 
 			// if the module is a repressor, enhancing edges are deactivators and inhibitory edges activators
 			Byte activatorType = Edge.ENHANCER;
