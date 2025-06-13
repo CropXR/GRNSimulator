@@ -151,7 +151,7 @@ public class Main {
 		
         FlaggedOption numModules = new FlaggedOption("numModules")
 									.setStringParser(JSAP.INTEGER_PARSER)
-									.setDefault("1")
+									.setDefault("10")
 									.setRequired(false)
 									.setLongFlag("num-modules");
         numModules.setHelp("Number of modules in the created network.");
@@ -167,7 +167,7 @@ public class Main {
         
         FlaggedOption groupingBias = new FlaggedOption("groupingBias")
 				.setStringParser(JSAP.DOUBLE_PARSER)
-				.setDefault("10.")
+				.setDefault("100.")
 				.setRequired(false)
 				.setLongFlag("grouping-bias");
         groupingBias.setHelp(" Preferential attachment for within module edges.");         
@@ -175,7 +175,7 @@ public class Main {
         
         FlaggedOption deltaIn = new FlaggedOption("deltaIn")
 				.setStringParser(JSAP.DOUBLE_PARSER)
-				.setDefault("100.")
+				.setDefault("300.")
 				.setRequired(false)
 				.setLongFlag("delta-in");
         deltaIn.setHelp("Bias for choosing nodes from in-degree distribution.");    
@@ -183,7 +183,7 @@ public class Main {
         
         FlaggedOption deltaOut = new FlaggedOption("deltaOut")
 				.setStringParser(JSAP.DOUBLE_PARSER)
-				.setDefault("1.")
+				.setDefault("3.")
 				.setRequired(false)
 				.setLongFlag("delta-out");
         deltaIn.setHelp("Bias for choosing nodes from out-degree distribution.");    

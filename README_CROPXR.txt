@@ -7,7 +7,7 @@ java -jar CropXRSimulator.jar --create -c sandbox/settings.txt --network-type=1 
 #Here the network-type sepcifies the algorithm to use. For now, we implemented random (network-type=0) and modular-scale-free (network-type=1). Random isn't advised except for comparison purposes. 
 #The sparsity flag will determine the fraction between edges and nodes (with 0.25 around 3 times as many edges as nodes, as this parameter determines the probability of adding a new edge compared to adding a new node.
 #The number of modules determines how many distinct modules are created. Nodes within modules have a higher probability to be connected compared to nodes in different modules. 
-#There are some different options for output-net-format. To get a dynamic GRN that you can simulate, use --output-net-format=4 (to get SBML). To get a static network (ehich is useful to study the network characteristics
+#There are some different options for output-net-format. To get a dynamic GRN that you can simulate, use --output-net-format=4 (to get SBML). To get a static network (which is useful to study the network characteristics
 #we recommend  --output-net-format=1 (GML). We wrote a python script to analyze the static network and get some key characteristics:
 
 python bin/analyzeGraph.py sandbox/test_scalefree.gml
@@ -19,4 +19,12 @@ java -jar CropXRSimulator.jar --transform --input-net sandbox/test_scalefree.gml
 #And finally, you can simulate the network like this:
 java -jar CropXRSimulator.jar --simulate -c sandbox/fastsettings.txt --input-net test_scalefree.xml --output-path /data/interos/mho/tools/genenetweaver/sandbox
 
- 
+#The SBML-file you get out GeneNetWeaver, is now a valid SBML that you can import elsewhere and simulate it. I added a small python file that does this (bin/importSBML.py). It uses tellurium 
+#(https://tellurium.readthedocs.io/en/latest/installation.html). You can also use that to export the file to Matlab, although I did not that test. 
+
+#IMPORTANT NOTES ON SBML EXPORTING:
+
+#1) For now I removed an option from GeneNetWeaver (bindAsComplex) as it was difficult to create SBML for, wasn't referred to in the Manual, nor in the paper.
+
+#2) exporting SBML doesn't work as expected when proteins are modeled (modelTranslation = 1 in the settings file), because proteins weren't added as separate entities in the SBML by GeneNetWeaver.
+#If important, I could spend more time to get that to work as well.
