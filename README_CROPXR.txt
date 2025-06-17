@@ -17,7 +17,7 @@ python bin/analyzeGraph.py sandbox/test_scalefree.gml
 java -jar CropXRSimulator.jar --transform --input-net sandbox/test_scalefree.gml --output-net-format=4 -c sandbox/settings.txt
 
 #And finally, you can simulate the network like this:
-java -jar CropXRSimulator.jar --simulate -c sandbox/fastsettings.txt --input-net test_scalefree.xml --output-path /data/interos/mho/tools/genenetweaver/sandbox
+java -jar CropXRSimulator.jar --simulate -c sandbox/settings.txt --input-net test_scalefree.xml --output-path /data/interos/mho/tools/genenetweaver/sandbox
 
 #The SBML-file you get out GeneNetWeaver, is now a valid SBML that you can import elsewhere and simulate it. I added a small python file that does this (bin/importSBML.py). It uses tellurium 
 #(https://tellurium.readthedocs.io/en/latest/installation.html). You can also use that to export the file to Matlab, although I did not that test. 
