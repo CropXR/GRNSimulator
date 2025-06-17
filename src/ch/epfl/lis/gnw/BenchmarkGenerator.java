@@ -74,12 +74,12 @@ abstract public class BenchmarkGenerator
 	static public DoubleMatrix1D constructInitialConditionFromWildType(SteadyStateExperiment wildType)
 	{	
 		DoubleMatrix1D x = wildType.getSsPerturbation().viewRow(0);
-		DoubleMatrix1D y = wildType.getSsPerturbationProteins().viewRow(0);
 
 		if (GnwSettings.getInstance().getModelTranslation())
 		{
 			DoubleMatrix1D xy0 = new DenseDoubleMatrix1D(2*wildType.getGrn().getSize());
-			
+			DoubleMatrix1D y = wildType.getSsPerturbationProteins().viewRow(0);
+	
 			for (int i=0; i<x.size(); i++)
 				xy0.set(i, x.get(i));
 			
