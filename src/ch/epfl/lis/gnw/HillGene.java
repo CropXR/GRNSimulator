@@ -88,13 +88,20 @@ public class HillGene extends Gene {
 	public String toString() {
 		 
 		String grf = "no inputs";
+		String [] geneNames = new String[inputGenes_.size()]; 
+		for (int i=0; i<inputGenes_.size(); i++) 
+		{
+			geneNames[i] = inputGenes_.get(i).getLabel();
+		}
 		
-		if (regulatoryModules_.size() > 0) {
-			grf = regulatoryModules_.get(0).toString(1);
-			int nextInputIndex = regulatoryModules_.get(0).getNumInputs() + 1;
+		if (regulatoryModules_.size() > 0) 
+		{		
+			grf = regulatoryModules_.get(0).toString(geneNames, 0);
+			int nextInputIndex = regulatoryModules_.get(0).getNumInputs();
 			
-			for (int i=1; i<regulatoryModules_.size(); i++) {
-				grf += " + " + regulatoryModules_.get(i).toString(nextInputIndex);
+			for (int i=1; i<regulatoryModules_.size(); i++) 
+			{
+				grf += " + " + regulatoryModules_.get(i).toString(geneNames, nextInputIndex);
 				nextInputIndex += regulatoryModules_.get(i).getNumInputs();
 			}
 		}

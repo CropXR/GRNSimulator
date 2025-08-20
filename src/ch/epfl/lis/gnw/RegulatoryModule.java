@@ -86,20 +86,20 @@ public class RegulatoryModule {
 	 * deactivator = numActivators+1, numActivators+2, ..., numInputs
 	 * Instead of starting at 1, the inputs are numbered starting at nextInputIndex.
 	 */
-	public String toString(int nextInputIndex) {
+	public String toString(String geneNames[], int startIndex) {
 
 		String mod = "";
 		if (!isEnhancer_) 
 			mod += "~";		
 		
-		mod += "(" + nextInputIndex;		
+		mod += "(" + geneNames[startIndex];		
 		for (int i=1; i<numActivators_; i++)
-			mod += "*" + (nextInputIndex + i);
+			mod += "*" + (geneNames[startIndex + i]);
 		
 		if (numDeactivators_ > 0) {
-			mod += "~" + (nextInputIndex + numActivators_);
+			mod += "~" + (geneNames[startIndex + numActivators_]);
 			for (int i=numActivators_+1; i<numActivators_+numDeactivators_; i++)
-				mod += "~" + (nextInputIndex + i);
+				mod += "~" + (geneNames[startIndex + i]);
 		}
 		mod += ")";
 		

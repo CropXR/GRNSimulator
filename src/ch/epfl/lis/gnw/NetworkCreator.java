@@ -115,11 +115,20 @@ public class NetworkCreator {
     private ImodNetwork createModularScaleFreeNetwork() throws ParseException
     {
 		ImodNetwork network = new ImodNetwork();
+		network.setSigned(true);
 		HashSet<MyEdge> edges = new HashSet<MyEdge>();
         HashSet<Integer> vertices = new HashSet<>(Arrays.asList(0, 1, 2)); 
 		HashMap<Integer, HashSet<Integer>> modules = new HashMap<>();
-		Random seed = new Random();
-
+		Random seed;
+		if(GnwSettings.getInstance().getRandomSeed() == -1)
+		{
+			seed = new Random();
+		}
+		else
+		{
+			 seed = new Random(GnwSettings.getInstance().getRandomSeed()); 
+		}
+		
 		for ( int indx = 0; indx < 3; indx++)
 		{
 			if (numModules_ == 1)
