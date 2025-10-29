@@ -583,7 +583,7 @@ public class CompendiumReader {
 				throw new RuntimeException("Experiment descriptions must have 2 or 3 columns");
 			
 			// if the line ends with r1, r2, ..., get the repeat and remove it from the description
-			int repeat = 1;
+			int repeat = set.getNumTimeSeries();
 			boolean matches_rX = id.matches(".* r[1-9]"); 
 			boolean matches_replicateX = id.matches(".*, replicate [1-9]");
 			

@@ -339,11 +339,14 @@ public class BenchmarkGeneratorDream4 extends BenchmarkGenerator
 		
 		checkForInterruption();
 		
+		// wild-types
+		createAndRunTsExperiment(simulationType, null, false, "wildtype_timeseries", xy0, set.getNumTimeSeries());
+		
 		// knockouts
 		if (set.generateTsKnockouts()) {
 			PerturbationSingleGene knockouts = new PerturbationSingleGene(grn_);
 			knockouts.singleGenePerturbations(0);
-			createAndRunTsExperiment(simulationType, knockouts, false, "knockout_timeseries", xy0);
+			createAndRunTsExperiment(simulationType, knockouts, false, "knockout_timeseries", xy0, set.getNumTimeSeries());
 		}
 		
 		checkForInterruption();
@@ -352,7 +355,7 @@ public class BenchmarkGeneratorDream4 extends BenchmarkGenerator
 		if (set.generateTsKnockdowns()) {
 			PerturbationSingleGene knockdowns = new PerturbationSingleGene(grn_);
 			knockdowns.singleGenePerturbations(0.5);
-			createAndRunTsExperiment(simulationType, knockdowns, false, "knockdown_timeseries", xy0);
+			createAndRunTsExperiment(simulationType, knockdowns, false, "knockdown_timeseries", xy0, set.getNumTimeSeries());
 		}
 		
 		checkForInterruption();
@@ -381,7 +384,7 @@ public class BenchmarkGeneratorDream4 extends BenchmarkGenerator
 				multifact = new PerturbationMultifactorial(grn_);
 				multifact.loadPerturbations(outputDirectory_, "multifactorial");
 			}
-			createAndRunTsExperiment(simulationType, multifact, false, label, xy0);
+			createAndRunTsExperiment(simulationType, multifact, false, label, xy0, 1);
 		}
 		
 		checkForInterruption();
@@ -410,7 +413,7 @@ public class BenchmarkGeneratorDream4 extends BenchmarkGenerator
 				multifact = new PerturbationMultifactorial(grn_);
 				multifact.loadPerturbations(outputDirectory_, label);
 			}
-			createAndRunTsExperiment(simulationType, multifact, true, label, xy0);
+			createAndRunTsExperiment(simulationType, multifact, true, label, xy0, 1);
 		}
 		
 		checkForInterruption();
@@ -439,7 +442,7 @@ public class BenchmarkGeneratorDream4 extends BenchmarkGenerator
 				dualKnockouts = new PerturbationDual(grn_);
 				dualKnockouts.loadPerturbations(outputDirectory_, "dualknockouts");
 			}
-			createAndRunTsExperiment(simulationType, dualKnockouts, false, label, xy0);
+			createAndRunTsExperiment(simulationType, dualKnockouts, false, label, xy0, 1);
 		}
 		
 		checkForInterruption();
@@ -478,12 +481,16 @@ public class BenchmarkGeneratorDream4 extends BenchmarkGenerator
 	// ----------------------------------------------------------------------------
 
 	/** Create and run a time-series experiment, add it to timeSeriesExperiments_ */
-	private void createAndRunTsExperiment(Solver.type simulationType, Perturbation perturbation, boolean restoreWildTypeAtHalftime, String label, DoubleMatrix1D xy0) {
-		TimeSeriesExperiment ts = new TimeSeriesExperiment(simulationType, perturbation, restoreWildTypeAtHalftime, label);
-		ts.initializeEquallySpacedTimePoints();
-		ts.setGrn(grn_);
-		ts.run(xy0);
-		timeSeriesExperiments_.add(ts);
+	private void createAndRunTsExperiment(Solver.type simulationType, Perturbation perturbation, boolean restoreWildTypeAtHalftime, String label, DoubleMatrix1D xy0, Integer numRepeats) {
+		
+		for( int i=0; i < numRepeats;i++)
+		{
+			TimeSeriesExperiment ts = new TimeSeriesExperiment(simulationType, perturbation, restoreWildTypeAtHalftime, label + i);
+			ts.initializeEquallySpacedTimePoints();
+			ts.setGrn(grn_);
+			ts.run(xy0);
+			timeSeriesExperiments_.add(ts);
+		}
 	}
 		
 		

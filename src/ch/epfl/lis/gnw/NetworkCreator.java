@@ -146,8 +146,14 @@ public class NetworkCreator {
 				modules.put(indx, new HashSet<>(Arrays.asList(indx)));
 			}				
 		}
+		
+		//Start with small connected component
         List<Integer> edge_sources = new ArrayList<>(vertices);
         List<Integer> edge_targets = vertices.stream().map(i -> (i + 1) % vertices.size()).collect(Collectors.toList()); // edge targets
+        
+    	edges.add(new MyEdge(0, 1));
+    	edges.add(new MyEdge(1, 2));
+    	edges.add(new MyEdge(2, 0));
 
         HashMap<String, HashMap<Integer, Integer>> degrees = new HashMap<>();
         degrees.put("in", new HashMap<>());

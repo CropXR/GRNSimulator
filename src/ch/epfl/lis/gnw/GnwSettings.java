@@ -130,13 +130,15 @@ public class GnwSettings {
 	/** Generate time series for dual knockouts */
 	private boolean tsDualKnockouts_ = false;
 	/** Number of time-series experiments from different initial conditions */
-	private int numTimeSeries_ = 10; 
+	private int numTimeSeries_ = 5; 
 	/** Number of measured points per time series (must be consistent with maxtTimeSeries_ and dt_, does *not* affect precision) */
 	//private int numMeasuredPoints_ = 21;
 	/** Default max duration time in time-series experiments (must be consistent with numTimePoints_ and dt_) */
 	private int maxtTimeSeries_ = 1000;
 	/** Time step for the time-series (must be consistent with numTimePoints_ and maxtTimeSeries_) */
 	private int dt_ = 50;
+	/** standard deviation for different initial conditions */
+	private double inititalConditionStdev_ = 0.33;
 	
 	// PERTURBATIONS
 	/** Standard deviation for multifactorial perturbations */
@@ -157,7 +159,8 @@ public class GnwSettings {
 	private double minFractionDirectTargets_ = 1;
 	/** Max fraction of TFs that are direct targets of a drug perturbation */
 	private double maxFractionDirectTargets_ = 0.1;
-	
+
+
 	// DETERMINISTIC MODEL (ODE)
 	/** If set true, a deterministic simulation of the experiments is done using the ODE model */
 	private boolean simulateODE_ = false;
@@ -373,6 +376,7 @@ public class GnwSettings {
 		//numMeasuredPoints_ = Integer.valueOf(gnwSettings.getProperty("numMeasuredPoints"));
 		maxtTimeSeries_ = Integer.valueOf(gnwSettings.getProperty("maxtTimeSeries"));
 		dt_ = Integer.valueOf(gnwSettings.getProperty("dt"));
+		inititalConditionStdev_ = Double.valueOf(gnwSettings.getProperty("inititalConditionStdev"));
 		
 		int numMeasuredPoints = (int)Math.round(maxtTimeSeries_/dt_) + 1;
 		if (dt_*(numMeasuredPoints-1) != maxtTimeSeries_)
@@ -730,4 +734,7 @@ public class GnwSettings {
 	
 	public void setSignature(String signature) { signature_ = signature; }
 	public String getSignature() { return signature_; }
+
+	public double getInititalConditionStdev() { return inititalConditionStdev_; }
+	public void setInititalConditionStdev(double inititalConditionStdev) { this.inititalConditionStdev_ = inititalConditionStdev; }
 }

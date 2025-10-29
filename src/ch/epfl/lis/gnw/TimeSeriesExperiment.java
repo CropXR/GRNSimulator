@@ -132,7 +132,7 @@ public class TimeSeriesExperiment extends Experiment {
 	 */
 	public void run(DoubleMatrix1D xy0) {
 		
-		xy0_ = xy0;
+		setRandomInitialConditions(xy0);
 		
 		String simulationType = "ODEs";
 		if (solverType_ == Solver.type.SDE)
@@ -372,7 +372,10 @@ public class TimeSeriesExperiment extends Experiment {
 		}
 		
 		// apply perturbation
-		perturbation_.applyPerturbation(k);
+		if( perturbation_ != null)
+		{
+			perturbation_.applyPerturbation(k);
+		}
 		t = 0; // reset time, the time-series only really starts here
 		int dt = GnwSettings.getInstance().getDt(); // step size of the solvers (not integration step size)
 		
@@ -443,7 +446,7 @@ public class TimeSeriesExperiment extends Experiment {
 		assert pt == timePoints_.size();
 		
 		// make sure the wild-type is restored
-		if (!wildTypeRestored)
+		if (!wildTypeRestored && perturbation_ != null)
 			perturbation_.restoreWildType();
 		
 		// add the new time-series data to the array lists
@@ -694,8 +697,7 @@ public class TimeSeriesExperiment extends Experiment {
 	 * epsilon is a random number from a Gaussian distribution with mean zero and
 	 * standard deviation as specified in Universal::perturbationStdev_.  
 	 */
-	/*
-	@Deprecated
+	
 	public void setRandomInitialConditions(DoubleMatrix1D wildType) {
 		
 		if (wildType.size() != numGenes_)
@@ -703,7 +705,7 @@ public class TimeSeriesExperiment extends Experiment {
 					"the size of wildType does not correspond with the number of genes!");
 		
 		// The distribution for the perturbation: limited in [0 1], the mean will be the corresponding wild-type
-		double stdev = GnwSettings.getInstance().getPerturbationStdev();
+		double stdev = GnwSettings.getInstance().getInititalConditionStdev();
 		RandomParameterGaussian randomInitialCondition = new RandomParameterGaussian(0, 1, 0, stdev, false);
 		
 		// Allocate space
@@ -728,6 +730,6 @@ public class TimeSeriesExperiment extends Experiment {
 			}
 		}
 	}	
-	*/
+	
 	
 }
