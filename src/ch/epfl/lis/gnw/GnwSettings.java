@@ -34,6 +34,9 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import cern.jet.random.Uniform;
 import cern.jet.random.Normal;
@@ -65,7 +68,7 @@ public class GnwSettings {
 
 	// VARIOUS
 	/** Current version of GNW */
-	private String gnwVersion_ = "3.1.3 Beta";
+	private String gnwVersion_ = "1.0";
 	/** Seed for the random number generator. Set to -1 to use current time */
 	private int randomSeed_ = -1;
 	/** Default output directory to save stuff */
@@ -159,8 +162,10 @@ public class GnwSettings {
 	private double minFractionDirectTargets_ = 1;
 	/** Max fraction of TFs that are direct targets of a drug perturbation */
 	private double maxFractionDirectTargets_ = 0.1;
-
-
+	
+	/** Factor used for knockdown (or overexpression) perurbations */
+	private List<Double> overexpressionFactors_ = Collections.singletonList(0.5);
+	
 	// DETERMINISTIC MODEL (ODE)
 	/** If set true, a deterministic simulation of the experiments is done using the ODE model */
 	private boolean simulateODE_ = false;
@@ -376,7 +381,11 @@ public class GnwSettings {
 		//numMeasuredPoints_ = Integer.valueOf(gnwSettings.getProperty("numMeasuredPoints"));
 		maxtTimeSeries_ = Integer.valueOf(gnwSettings.getProperty("maxtTimeSeries"));
 		dt_ = Integer.valueOf(gnwSettings.getProperty("dt"));
-		inititalConditionStdev_ = Double.valueOf(gnwSettings.getProperty("inititalConditionStdev"));
+		
+		if(gnwSettings.getProperty("inititalConditionStdev") != null )
+		{
+			inititalConditionStdev_ = Double.valueOf(gnwSettings.getProperty("inititalConditionStdev"));
+		}
 		
 		int numMeasuredPoints = (int)Math.round(maxtTimeSeries_/dt_) + 1;
 		if (dt_*(numMeasuredPoints-1) != maxtTimeSeries_)
@@ -392,7 +401,13 @@ public class GnwSettings {
 		maxGeneOverexpressionEffect_ = Double.valueOf(gnwSettings.getProperty("maxGeneOverexpressionEffect"));
 		minFractionDirectTargets_ = Double.valueOf(gnwSettings.getProperty("minFractionDirectTargets"));
 		maxFractionDirectTargets_ = Double.valueOf(gnwSettings.getProperty("maxFractionDirectTargets"));
-
+		
+		if( gnwSettings.getProperty("overexpressionFactors") != null)
+		{
+			String overExpString =  gnwSettings.getProperty("overexpressionFactors");
+			setOverExpressionFactors(parseDoubleList(overExpString));
+		}
+		
 		// DETERMINISTIC MODEL (ODE)
 		simulateODE_ = gnwSettings.getProperty("simulateODE").equals("0") ?  false : true;
 		absolutePrecision_ = Double.valueOf(gnwSettings.getProperty("absolutePrecision"));
@@ -412,11 +427,6 @@ public class GnwSettings {
 		normalizeAfterAddingNoise_ = gnwSettings.getProperty("normalizeAfterAddingNoise").equals("0") ?  false : true;
 		
 		signature_ = "\n";
-		signature_ += "Thomas Schaffter (thomas.schaff...@gmail.com)\n";
-		signature_ += "Daniel Marbach (daniel.marb...@gmail.com)\n";
-		signature_ += "Gilles Roulet (gilles.rou...@gmail.com)\n";
-		signature_ += "\n";
-		signature_ += "http://tschaffter.ch/projects/gnw";
 	}
 	
 	// ----------------------------------------------------------------------------
@@ -553,6 +563,23 @@ public class GnwSettings {
 		SdeSettings.getInstance().setNormalDistribution(normalDistribution_);
 	}
 	
+	private List<Double> parseDoubleList(String commaSeparatedDoubles) 
+	{
+        List<Double> list = new ArrayList<>();
+        String[] parts = commaSeparatedDoubles.split(",");
+        for (String part : parts) 
+        {
+            try 
+            {
+                list.add(Double.parseDouble(part.trim()));
+            } 
+            catch (NumberFormatException e) 
+            {
+                System.err.println("Invalid double value: " + part);
+            }
+        }
+        return list;
+    }
 	
 	// ============================================================================
 	// SETTERS AND GETTERS
@@ -706,6 +733,9 @@ public class GnwSettings {
 	
 	public void generateTsKnockdowns(boolean b) { tsKnockdowns_ = b; }
 	public boolean generateTsKnockdowns() { return tsKnockdowns_; }
+	
+	public void setOverExpressionFactors(List<Double> list) { overexpressionFactors_ = list; }
+	public List<Double> getOverExpressionFactors() { return overexpressionFactors_; }
 	
 	public void generateTsMultifactorial(boolean b) { tsMultifactorial_ = b; }
 	public boolean generateTsMultifactorial() { return tsMultifactorial_; }

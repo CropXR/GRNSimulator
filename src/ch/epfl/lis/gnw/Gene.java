@@ -190,7 +190,9 @@ abstract public class Gene extends Node {
 		max_ = delta_;
 		
 		if (uni.getModelTranslation()) {
-			deltaProtein_ = Math.log(2) / uni.getRandomHalfLife();
+			//Protein half-lifes are ~ 3 times as high as mRNA half-lifes
+			//https://book.bionumbers.org/how-fast-do-rnas-and-proteins-degrade
+			deltaProtein_ = Math.log(2) / ( 3.0 * uni.getRandomHalfLife());
 			maxTranslation_ = deltaProtein_;
 		}
 	}

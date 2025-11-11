@@ -346,19 +346,20 @@ public class Main {
 		GnwSettings uni = GnwSettings.getInstance();
 		
     	log_.log(Level.INFO, "");
-    	log_.log(Level.INFO, "GeneNetWeaver (GNW) is a tool for the automatic generation of in silico gene networks and reverse engineering benchmarks.");
+    	log_.log(Level.INFO, "CropXRSimulator is an extension of geneNetWeaver (GNW), a tool for the automatic generation of in silico gene networks and reverse engineering benchmarks.");
     	log_.log(Level.INFO, "Version: " + uni.getGnwVersion());
-    	log_.log(Level.INFO, "Authors: Thomas Schaffter (thomas.schaff..@gmail.com), Daniel Marbach (daniel.marb...@gmail.com), Gilles Roulet (gilles.rou...@gmail.com)");
+    	log_.log(Level.INFO, "Original Authors: Thomas Schaffter (thomas.schaff..@gmail.com), Daniel Marbach (daniel.marb...@gmail.com), Gilles Roulet (gilles.rou...@gmail.com)");
+    	log_.log(Level.INFO, "CropXR Author: Milan van Hoek (mho@keygene.com)");
     	log_.log(Level.INFO, "Web page: http://lis.epfl.ch/gnw");
     	log_.log(Level.INFO, "");
-    	log_.log(Level.INFO, "Usage: java -jar gnw.jar " + jsap.getUsage());
+    	log_.log(Level.INFO, "Usage: java -jar CropXRSimulator.jar" + jsap.getUsage());
     	log_.log(Level.INFO, "");
     	log_.log(Level.INFO, "Examples:");
-    	log_.log(Level.INFO, "  Extraction: java -jar gnw-standalone.jar --extract -c settings.txt --input-net ecoli_transcriptional_network_regulonDB_6_7.tsv --random-seed --greedy-selection --subnet-size=50 --num-subnets=10 --output-net-format=4 --keep-self-interactions --output-path .");
-    	log_.log(Level.INFO, "  Creation: java -jar gnw-standalone.jar --create -c settings.txt --random-seed --output-net-format=4 --keep-self-interactions --output-path .");
-    	log_.log(Level.INFO, "  Simulation: java -jar gnw-standalone.jar --simulate -c settings.txt --input-net InSilicoSize10-Yeast1.xml --output-path /home/thomas/devel/gnw-3_0/datasets");
-    	log_.log(Level.INFO, "  Evaluation: java -jar gnw-standalone.jar --evaluate --goldstandard InSilicoSize10-Yeast1.xml --prediction InSilicoSize10-Yeast1-prediction.tsv");
-    	log_.log(Level.INFO, "  Conversion (here TSV to DOT format): java -jar gnw-standalone.jar --transform -c settings.txt --input-net ecoli_transcriptional_network_regulonDB_6_7.tsv --output-net-format=2");
+    	log_.log(Level.INFO, "  Extraction: java -jar CropXRSimulator.jar --extract -c settings.txt --input-net ecoli_transcriptional_network_regulonDB_6_7.tsv --random-seed --greedy-selection --subnet-size=50 --num-subnets=10 --output-net-format=4 --keep-self-interactions --output-path .");
+    	log_.log(Level.INFO, "  Creation: java -jar CropXRSimulator.jar --create -c settings.txt --random-seed --output-net-format=4 --keep-self-interactions --output-path .");
+    	log_.log(Level.INFO, "  Simulation: java -jar CropXRSimulator.jar --simulate -c settings.txt --input-net InSilicoSize10-Yeast1.xml --output-path /home/thomas/devel/gnw-3_0/datasets");
+    	log_.log(Level.INFO, "  Evaluation: java -jar CropXRSimulator.jar --evaluate --goldstandard InSilicoSize10-Yeast1.xml --prediction InSilicoSize10-Yeast1-prediction.tsv");
+    	log_.log(Level.INFO, "  Conversion (here TSV to DOT format): java -jar CropXRSimulator.jar --transform -c settings.txt --input-net ecoli_transcriptional_network_regulonDB_6_7.tsv --output-net-format=2");
     	log_.log(Level.INFO, "");
     	log_.log(Level.INFO, jsap.getHelp());	// show full help as well
 	}

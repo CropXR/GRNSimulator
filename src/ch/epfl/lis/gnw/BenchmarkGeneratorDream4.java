@@ -346,16 +346,20 @@ public class BenchmarkGeneratorDream4 extends BenchmarkGenerator
 		if (set.generateTsKnockouts()) {
 			PerturbationSingleGene knockouts = new PerturbationSingleGene(grn_);
 			knockouts.singleGenePerturbations(0);
-			createAndRunTsExperiment(simulationType, knockouts, false, "knockout_timeseries", xy0, set.getNumTimeSeries());
+			createAndRunTsExperiment(simulationType, knockouts, false, "knockout_timeseries", xy0, 1);
 		}
 		
 		checkForInterruption();
 		
-		// knockdowns
-		if (set.generateTsKnockdowns()) {
-			PerturbationSingleGene knockdowns = new PerturbationSingleGene(grn_);
-			knockdowns.singleGenePerturbations(0.5);
-			createAndRunTsExperiment(simulationType, knockdowns, false, "knockdown_timeseries", xy0, set.getNumTimeSeries());
+		// knockdowns/overexpression
+		if (set.generateTsKnockdowns())
+		{	
+			for (Double overexp : set.getOverExpressionFactors())
+			{
+				PerturbationSingleGene knockdowns = new PerturbationSingleGene(grn_);
+				knockdowns.singleGenePerturbations(overexp);
+				createAndRunTsExperiment(simulationType, knockdowns, false, "knockdown_timeseries_" + overexp + "_", xy0, 1);
+			}
 		}
 		
 		checkForInterruption();

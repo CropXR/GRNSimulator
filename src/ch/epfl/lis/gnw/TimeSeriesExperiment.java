@@ -700,7 +700,8 @@ public class TimeSeriesExperiment extends Experiment {
 	
 	public void setRandomInitialConditions(DoubleMatrix1D wildType) {
 		
-		if (wildType.size() != numGenes_)
+		if ((!modelTranslation_ && wildType.size() != numGenes_) || 
+				(modelTranslation_ && wildType.size() != 2 * numGenes_))
 			throw new IllegalArgumentException("TimeSeriesExperiment::setRandomInitialConditions(): " +
 					"the size of wildType does not correspond with the number of genes!");
 		
