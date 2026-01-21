@@ -125,7 +125,7 @@ public class BenchmarkGeneratorDream4 extends BenchmarkGenerator
 			SteadyStateExperiment exp = steadyStateExperiments_.get(i);
 			exp.printAll(outputDirectory_, postfix);
 			String label = exp.getLabel();
-			if (label == "multifactorial" || label == "dream4_timeseries" || label == "dualknockouts")
+			if (label.contains("multifactorial") || label.contains("dream4_timeseries") || label.contains("dualknockouts"))
 				exp.getPerturbation().printPerturbations(outputDirectory_, exp.getLabel());
 		}
 		
@@ -140,7 +140,7 @@ public class BenchmarkGeneratorDream4 extends BenchmarkGenerator
 			TimeSeriesExperiment exp = timeSeriesExperiments_.get(i);
 			exp.printAll(outputDirectory_, postfix);
 			String label = exp.getLabel();
-			if (label == "dream4_timeseries" || label == "multifactorial_timeseries" || label == "dualknockout_timeseries")
+			if (label.contains("dream4_timeseries") || label.contains("multifactorial_timeseries") || label.contains("dualknockout_timeseries"))
 				exp.getPerturbation().printPerturbations(outputDirectory_, exp.getLabel());
 		}
 		
