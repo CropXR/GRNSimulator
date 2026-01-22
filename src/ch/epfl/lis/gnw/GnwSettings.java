@@ -163,7 +163,7 @@ public class GnwSettings {
 	/** Max fraction of TFs that are direct targets of a drug perturbation */
 	private double maxFractionDirectTargets_ = 0.1;
 	
-	/** Factor used for knockdown (or overexpression) perurbations */
+	/** Factor used for knockdown (or overexpression) perturbations */
 	private List<Double> overexpressionFactors_ = Collections.singletonList(0.5);
 	
 	// DETERMINISTIC MODEL (ODE)
@@ -649,7 +649,7 @@ public class GnwSettings {
 	
 	public void setLoadPerturbations(boolean b) { loadPerturbations_ = b; }
 	public boolean getLoadPerturbations() { return loadPerturbations_; }
-
+	
 	public double getMinGeneDeletionEffect() { return minGeneDeletionEffect_; }
 	public void setMinGeneDeletionEffect(double minGeneDeletionEffect) { minGeneDeletionEffect_ = minGeneDeletionEffect; }
 

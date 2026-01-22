@@ -225,10 +225,14 @@ public class BenchmarkGeneratorDream4 extends BenchmarkGenerator
 		checkForInterruption();
 		
 		// knockdowns
-		if (set.generateSsKnockdowns()) {
-			PerturbationSingleGene knockdowns = new PerturbationSingleGene(grn_);
-			knockdowns.singleGenePerturbations(0.5);
-			createAndRunSsExperiment(Solver.type.ODE, knockdowns, "knockdowns");
+		if (set.generateSsKnockdowns()) 
+		{
+			for (Double overexp : set.getOverExpressionFactors())
+			{
+				PerturbationSingleGene knockdowns = new PerturbationSingleGene(grn_);
+				knockdowns.singleGenePerturbations(overexp);
+				createAndRunSsExperiment(Solver.type.ODE, knockdowns, "knockdowns_" + overexp);
+			}
 		}
 		
 		checkForInterruption();
@@ -427,7 +431,8 @@ public class BenchmarkGeneratorDream4 extends BenchmarkGenerator
 			PerturbationDual dualKnockouts = null;
 			String label = "dualknockout_timeseries";
 			
-			if (!set.getLoadPerturbations()) {
+			if (!set.getLoadPerturbations()) 
+			{
 				// use the same perturbations as for the steady-state experiments, if they were simulated
 				for (int i=0; i<steadyStateExperiments_.size(); i++) {
 					

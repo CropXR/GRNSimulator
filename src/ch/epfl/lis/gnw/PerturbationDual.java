@@ -29,10 +29,12 @@ package ch.epfl.lis.gnw;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.logging.Level;
 
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
+import ch.epfl.lis.networks.ios.TSVParser;
 
 
 /**
@@ -88,7 +90,30 @@ public class PerturbationDual extends PerturbationSingleGene {
 		}
 	}
 	
-	
+	public void loadPerturbations(String directory, String label) {
+		
+		try
+		{
+			URL url = GnwSettings.getInstance().getURL(directory + grn_.getId() + "_" + label + "_perturbations.tsv");
+			ArrayList<String[]> data = TSVParser.readTSV(url);
+			// the first line is the header
+			numPerturbations_ = data.size() - 1;
+			perturbations_ = new DenseDoubleMatrix2D(numPerturbations_, numGenes_);
+			
+			// get the wild-type from the network
+			saveWildType();
+			
+			for (int l=1; l<data.size(); l++) {
+				String[] line = data.get(l);
+				for (int i=0; i<line.length; i++)
+					perturbations_.set(l-1, i, wildType_.get(i) * Double.valueOf(line[i]));
+			}
+
+		} catch (Exception e) {
+			log_.log(Level.WARNING, "Could not load perturbations: " + e.getMessage(), e);
+			throw new RuntimeException("Could not load perturbations");
+		}
+	}
 //	----------------------------------------------------------------------------
 	
 	/**

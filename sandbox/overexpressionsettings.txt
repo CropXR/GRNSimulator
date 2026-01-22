@@ -101,7 +101,7 @@ multifactorialStdev = 0.25
 # The probability that a gene is perturbed (only applies for DREAM4 time series)
 perturbationProbability = 0.33
 # Set true to load the multifactorial perturbations from existing files
-loadPerturbations = 0
+loadPerturbations = 1
 # Min efficacy of gene deletions (set to 1.0 to set transcription rates to 0, set to 0.9 for 90% reduction)
 minGeneDeletionEffect = 1
 # Max efficacy of gene deletions (set to 1.0 to set transcription rates to 0, set to 0.9 for 90% reduction)
