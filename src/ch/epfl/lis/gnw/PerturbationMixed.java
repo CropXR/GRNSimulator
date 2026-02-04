@@ -119,6 +119,10 @@ public class PerturbationMixed extends Perturbation {
 		// If the gene is not part of the compendium, randomly choose a TF to delete
 		if (index == -1)
 			throw new RuntimeException("Target of genetic perturbation " + label + " is not part of the compendium");
+		else if (!(grn_.isGene(index)))
+		{
+			throw new RuntimeException("Target of genetic perturbation " + label + " is an environment");
+		}
 		else if (!grn_.getGene(index).getIsTf())
 			throw new RuntimeException("Target of genetic perturbation " + label + " is not a TF");
 
@@ -142,9 +146,13 @@ public class PerturbationMixed extends Perturbation {
 	/** Apply the k'th perturbation to the grn_ */
 	public void applyPerturbation(int k) {
 		
-		for (int i=0; i<numGenes_; i++) {
-			grn_.getGene(i).setMax( wildType_.get(i) + deltaMax_.get(i) );
-			grn_.getGene(i).perturbBasalActivation( deltaBasalActivation_.get(i) );
+		for (int i=0; i<numGenes_; i++)
+		{
+			if (grn_.isGene(i))
+			{
+				grn_.getGene(i).setMax( wildType_.get(i) + deltaMax_.get(i) );
+				grn_.getGene(i).perturbBasalActivation( deltaBasalActivation_.get(i) );
+			}
 		}
 	}
 
@@ -156,7 +164,12 @@ public class PerturbationMixed extends Perturbation {
 		
 		wildType_ = new DenseDoubleMatrix1D(numGenes_);
 		for (int i=0; i<numGenes_; i++)
-			wildType_.set(i, grn_.getGene(i).getMax());
+		{
+			if (grn_.isGene(i))
+			{
+				wildType_.set(i, grn_.getGene(i).getMax());
+			}
+		}
 	}
 	
 	
@@ -165,9 +178,13 @@ public class PerturbationMixed extends Perturbation {
 	/** Restore wild type max transcription rates and basal activations */
 	public void restoreWildType() {
 		
-		for (int i=0; i<numGenes_; i++) {
-			grn_.getGene(i).setMax( wildType_.get(i) );
-			grn_.getGene(i).restoreWildTypeBasalActivation();
+		for (int i=0; i<numGenes_; i++) 
+		{
+			if (grn_.isGene(i))
+			{
+				grn_.getGene(i).setMax( wildType_.get(i) );
+				grn_.getGene(i).restoreWildTypeBasalActivation();
+			}
 		}
 	}
 		

@@ -411,19 +411,38 @@ public class SteadyStateExperiment extends Experiment {
 			// 0 = m*f(0) -delta*x_i  =>  x_i = m*f(0) / delta
 			grn_.computeDxydt(zeros, xy0); // since x=0, this actually computes m*f(0)
 			
-			for (int i=0; i<numGenes_; i++) {
-				xy0[i] /= grn_.getGene(i).getDelta();
+			for (int i=0; i<numGenes_; i++) 
+			{
+				if (grn_.isGene(i))
+				{
+					xy0[i] /= grn_.getGene(i).getDelta();
+				}
+				else
+				{
+					xy0[i] = ((Environment)grn_.getNode(i)).getInitialCondition();
+				}
+			
 			}
 
 			// Corresponding initial conditions for the proteins:
 			// 0 = mTranslation*x_i - deltaProt*y_i  =>  y_i = mTranslation*x_i / deltaProt
-			if (modelTranslation_) {
-				for (int i=0; i<numGenes_; i++) {
-					double m = grn_.getGene(i).getMaxTranslation();
-					double d = grn_.getGene(i).getDeltaProtein();
-					xy0[numGenes_+i] = m*xy0[i] / d;
+			if (modelTranslation_)
+			{
+				for (int i=0; i<numGenes_; i++) 
+				{
+					if (grn_.isGene(i))
+					{
+						double m = grn_.getGene(i).getMaxTranslation();
+						double d = grn_.getGene(i).getDeltaProtein();
+						xy0[numGenes_+i] = m*xy0[i] / d;
+					}
+					else
+					{
+						xy0[numGenes_+i] = ((Environment)grn_.getNode(i)).getInitialCondition();
+					}
 				}
 			}
+			
 			//xy0_ = new DenseDoubleMatrix1D(xy0.length);
 			//xy0_.assign(xy0);
 		

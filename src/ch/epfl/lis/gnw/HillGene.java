@@ -321,7 +321,7 @@ public class HillGene extends Gene {
 		// first module, and the second n inputs to the second module, etc.,
 		// we need to randomize the order of the inputs. We put the list in a
 		// clone and will add one gene after the other back to the original list.
-		ArrayList<Gene> inputGenesClone = (ArrayList<Gene>) inputGenes_.clone();
+		ArrayList<GrnNode> inputGenesClone = (ArrayList<GrnNode>) inputGenes_.clone();
 		inputGenes_.clear();
 		
 		regulatoryModules_ = new ArrayList<RegulatoryModule>(numInputsPerModule.size());
@@ -330,7 +330,7 @@ public class HillGene extends Gene {
 			
 			int numModuleInputs = numInputsPerModule.get(m);
 			// the input genes of this module
-			ArrayList<Gene> inputsOfThisModule = new ArrayList<Gene>(numModuleInputs);
+			ArrayList<GrnNode> inputsOfThisModule = new ArrayList<GrnNode>(numModuleInputs);
 			// the type of the inputs (enhancing, inhibitory, etc.)
 			ArrayList<Byte> edgeTypes = new ArrayList<Byte>(numModuleInputs);
 			

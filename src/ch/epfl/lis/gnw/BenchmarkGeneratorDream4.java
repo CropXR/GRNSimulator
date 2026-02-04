@@ -438,7 +438,7 @@ public class BenchmarkGeneratorDream4 extends BenchmarkGenerator
 					
 					checkForInterruption();
 					
-					if (steadyStateExperiments_.get(i).getLabel() == "dualknockouts") {
+					if (steadyStateExperiments_.get(i).getLabel().contains("dualknockouts")) {
 						dualKnockouts = (PerturbationDual) steadyStateExperiments_.get(i).getPerturbation();
 						break;
 					}

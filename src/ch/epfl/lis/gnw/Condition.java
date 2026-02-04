@@ -331,7 +331,7 @@ public class Condition {
 		// If the gene is not part of the compendium or is not a TF, randomly choose a TF 
 		String substitute = label;
 		
-		if ((index == -1) || !grn_.getGene(index).getIsTf()) {
+		if ((index == -1) || !(grn_.isGene(index)) || !grn_.getGene(index).getIsTf()) {
 			LinkedHashMap<String, String> substitutionLookup = ((CompendiumInsilico) compendium_).getSubstitutions();
 			substitute = substitutionLookup.get(label);
 			

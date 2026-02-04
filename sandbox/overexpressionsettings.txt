@@ -17,7 +17,7 @@ randomSeed = -1
 # Default output directory to save files, leave empty to use the default home directory
 outputDirectory = 
 # Model proteins and translation
-modelTranslation = 1
+modelTranslation = 0
 # Set true to ignore self-links (Gi->Gi) when saving gold standards in DREAM format
 ignoreAutoregulatoryInteractionsInEvaluation = 1
 # Set true to explicitly list all zero interactions when saving gold standards in DREAM format (DREAM3 and DREAM4 scripts require this)
@@ -54,7 +54,7 @@ ssDualKnockouts = 0
 # For deterministic simulations (ODEs), we return the steady-states as soon as convergence is reached.
 # If there is no convergence until time maxtSteadyStateODE_, the values at this point are returned and a
 # warning message is displayed. 
-maxtSteadyStateODE = 2000
+maxtSteadyStateODE = 200
 
 # For stochastic simulations (SDEs): If maxtSteadyStateSDE < 0, we return the state at time 1.5*t_ODE, 
 # where t_ODE is the time of convergence for the deterministic simulation of the same perturbation.
@@ -101,7 +101,7 @@ multifactorialStdev = 0.25
 # The probability that a gene is perturbed (only applies for DREAM4 time series)
 perturbationProbability = 0.33
 # Set true to load the multifactorial perturbations from existing files
-loadPerturbations = 1
+loadPerturbations = 0
 # Min efficacy of gene deletions (set to 1.0 to set transcription rates to 0, set to 0.9 for 90% reduction)
 minGeneDeletionEffect = 1
 # Max efficacy of gene deletions (set to 1.0 to set transcription rates to 0, set to 0.9 for 90% reduction)

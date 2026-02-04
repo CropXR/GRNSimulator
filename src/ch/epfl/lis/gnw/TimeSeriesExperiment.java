@@ -716,18 +716,34 @@ public class TimeSeriesExperiment extends Experiment {
 		xy0_ =  new DenseDoubleMatrix1D(length);
 		
 		// Set random initial conditions for the mRNA (x)
-		for (int i=0; i<numGenes_; i++) {
-			randomInitialCondition.setMean(wildType.get(i));
-			xy0_.set(i, randomInitialCondition.getRandomValue());
+		for (int i=0; i<numGenes_; i++) 
+		{
+			if (grn_.isGene(i))
+			{
+				randomInitialCondition.setMean(wildType.get(i));
+				xy0_.set(i, randomInitialCondition.getRandomValue());
+			}
+			else
+			{
+				xy0_.set(i, ((Environment)grn_.getNode(i)).getInitialCondition());
+			}
 		}
 		
 		// Corresponding initial conditions for the proteins (as if the above initial condition would be held fixed)
 		// 0 = mTranslation*x_i - deltaProt*y_i  =>  y_i = mTranslation*x_i / deltaProt
 		if (modelTranslation_) {
-			for (int i=0; i<numGenes_; i++) {
-				double m = grn_.getGene(i).getMaxTranslation();
-				double d = grn_.getGene(i).getDeltaProtein();
-				xy0_.set(numGenes_+i, m*xy0_.get(i) / d);
+			for (int i=0; i<numGenes_; i++)
+			{
+				if( grn_.isGene(i))
+				{
+					double m = grn_.getGene(i).getMaxTranslation();
+					double d = grn_.getGene(i).getDeltaProtein();
+					xy0_.set(numGenes_+i, m*xy0_.get(i) / d);
+				}
+				else
+				{
+					xy0_.set(numGenes_ + i, ((Environment)grn_.getNode(i)).getInitialCondition());
+				}
 			}
 		}
 	}	

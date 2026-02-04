@@ -74,8 +74,16 @@ public class PerturbationMultifactorial extends Perturbation {
 		
 		// generate perturbations
 		for (int p=0; p<numPerturbations_; p++) {
-			for (int g=0; g<numGenes_; g++) {
-				perturbations_.set(p, g, normal.nextDouble(0, stdev_));
+			for (int g=0; g<numGenes_; g++) 
+			{
+				if (grn_.isGene(g))
+				{
+					perturbations_.set(p, g, normal.nextDouble(0, stdev_));
+				}
+				else
+				{
+					perturbations_.set(p, g, 0);
+				}
 			}
 		}
 	}
@@ -100,14 +108,18 @@ public class PerturbationMultifactorial extends Perturbation {
 		// generate perturbations
 		for (int p=0; p<numPerturbations_; p++) {
 			for (int g=0; g<numGenes_; g++) {
-				if (uniform.nextDoubleFromTo(0, 1) < perturbationProbability_) {
-					// the new basal activation
-					double delta = uniform.nextDoubleFromTo(0, 1);
-					// but actually we need the difference to the wild-type
-					delta = delta - grn_.getGene(g).getBasalActivation();
-					perturbations_.set(p, g, delta);
-				} else
-					perturbations_.set(p, g, 0);
+				if (uniform.nextDoubleFromTo(0, 1) < perturbationProbability_)
+				{
+					if (grn_.isGene(g))
+					{
+						// the new basal activation
+						double delta = uniform.nextDoubleFromTo(0, 1);
+						// but actually we need the difference to the wild-type
+						delta = delta - grn_.getGene(g).getBasalActivation();
+						perturbations_.set(p, g, delta);
+					} else
+						perturbations_.set(p, g, 0);
+				}
 			}
 		}
 	}
@@ -119,7 +131,12 @@ public class PerturbationMultifactorial extends Perturbation {
 	public void applyPerturbation(int k) {
 		
 		for (int i=0; i<numGenes_; i++)
-			grn_.getGene(i).perturbBasalActivation( perturbations_.get(k,i) );
+		{
+			if (grn_.isGene(i))
+			{
+				grn_.getGene(i).perturbBasalActivation( perturbations_.get(k,i) );
+			}
+		}
 	}
 
 	
@@ -130,7 +147,12 @@ public class PerturbationMultifactorial extends Perturbation {
 		
 		wildType_ = new DenseDoubleMatrix1D(numGenes_);
 		for (int i=0; i<numGenes_; i++)
-			wildType_.set(i, 0);
+		{
+			if (grn_.isGene(i))
+			{
+				wildType_.set(i, 0);
+			}
+		}
 	}
 	
 	
@@ -140,7 +162,12 @@ public class PerturbationMultifactorial extends Perturbation {
 	public void restoreWildType() {
 		
 		for (int i=0; i<numGenes_; i++)
-			grn_.getGene(i).restoreWildTypeBasalActivation();
+		{
+			if (grn_.isGene(i))
+			{
+				grn_.getGene(i).restoreWildTypeBasalActivation();
+			}
+		}
 	}
 	
 	

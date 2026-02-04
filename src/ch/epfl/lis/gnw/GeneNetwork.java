@@ -96,22 +96,23 @@ public class GeneNetwork extends ImodNetwork {
 	/**
 	 * Constructor from a network (copies the structure of the given network)
 	 */
-	public GeneNetwork(Structure network) {
+	public GeneNetwork(Structure network) 
+	{
 
 		// initialize with members of network, except for the nodes and the edges
 		super(network);
 		nodes_.clear();
 		edges_.clear();
 		
-		for (int i=0; i < network.getSize(); i++) {
+		for (int i=0; i < network.getSize(); i++) 
+		{	
 			HillGene g = new HillGene(this);
 			g.setLabel(network.getNode(i).getLabel());
 			nodes_.add(g);
 		}
-		
+			
 		Node source, target;
 		Edge edge;
-		
 		for (int i=0; i < network.getNumEdges(); i++) {
 			edge = network.getEdge(i);
 			// Get the nodes in this.nodes_ and *not* in network.nodes_
@@ -122,7 +123,7 @@ public class GeneNetwork extends ImodNetwork {
 		setSize(getSize());
 	}
 	
-	
+
 	// ============================================================================
 	// PUBLIC METHODS
 	
@@ -152,8 +153,11 @@ public class GeneNetwork extends ImodNetwork {
 		int size = getSize();
 		
 		for (int i=0; i < size; i++) {
-			ArrayList<Gene> inputs = getInputs((Gene)nodes_.get(i));
-			((Gene)nodes_.get(i)).setInputGenes(inputs);
+			ArrayList<GrnNode> inputs = getInputs(nodes_.get(i));
+			if( nodes_.get(i) instanceof Gene)
+			{
+				((Gene)nodes_.get(i)).setInputGenes(inputs);
+			}
 		}
 	}
 
@@ -172,10 +176,14 @@ public class GeneNetwork extends ImodNetwork {
 		int size = nodes_.size();
 
 		Gene gene = null;
-		for (int i=0; i < size; i++) {
-			gene = (Gene)nodes_.get(i);
-			gene.randomInitialization();
-			log_.log(Level.INFO, id_ + ": " + gene.getLabel() + ": " + gene.toString());
+		for (int i=0; i < size; i++) 
+		{
+			if( nodes_.get(i) instanceof Gene)
+			{
+				gene = (Gene)nodes_.get(i);
+				gene.randomInitialization();
+				log_.log(Level.INFO, id_ + ": " + gene.getLabel() + ": " + gene.toString());
+			}
 		}
 		// If the network was unsigned before the initialization, we have to set the types
 		// of the edges (enhancing / inhibiting) accordingly. If the network was signed,
@@ -212,11 +220,31 @@ public class GeneNetwork extends ImodNetwork {
 		computeMRnaProductionRates(dxydt);
 		
 		for (int i=0; i < size; i++)
-			dxydt[i] = dxydt[i] - ((Gene)nodes_.get(i)).computeMRnaDegradationRate(x_.get(i));
+		{
+			if ( nodes_.get(i) instanceof Gene)
+			{
+				dxydt[i] = dxydt[i] - ((Gene)nodes_.get(i)).computeMRnaDegradationRate(x_.get(i));
+			}
+			else if (nodes_.get(i) instanceof Environment)
+			{
+				dxydt[i] = ((Environment)nodes_.get(i)).computeDxdt();
+			}		
+		}
 		
 		if (modelTranslation)
+		{
 			for (int i=0; i<size; i++)
-				dxydt[size+i] = ((Gene)nodes_.get(i)).getMaxTranslation()*x_.get(i) - ((Gene)nodes_.get(i)).computeProteinDegradationRate(y_.get(i));
+			{
+				if ( nodes_.get(i) instanceof Gene)
+				{
+					dxydt[size+i] = ((Gene)nodes_.get(i)).getMaxTranslation()*x_.get(i) - ((Gene)nodes_.get(i)).computeProteinDegradationRate(y_.get(i));
+				}
+				else if (nodes_.get(i) instanceof Environment)
+				{
+					dxydt[size+i] = ((Environment)nodes_.get(i)).computeDxdt();
+				}	
+			}
+		}
 	}
 
 	
@@ -258,27 +286,29 @@ public class GeneNetwork extends ImodNetwork {
 		// do not count the species _void_
 		setSize(species.size()-1);
 
-		for (int g=0; g < size; g++) {
-			if (!species.get(g).getId().equals("_void_")) {
-				HillGene hg = new HillGene(this);
-				hg.setLabel(species.get(g).getId());
-				nodes_.add(hg);
+		for (int g=0; g < size; g++) 
+		{
+			String id = species.get(g).getId();
+			Node node = createNode(species, id);
+			if( node != null)
+			{
+				node.setLabel(species.get(g).getId());
+				nodes_.add(node);
 			}
 		}
 		
 		ArrayList<String> parameterNames = new ArrayList<String>(); // the names of the parameters
 		ArrayList<Double> parameterValues = new ArrayList<Double>(); // the values of the parameters
-		ArrayList<Gene> inputIndexes = new ArrayList<Gene>(); // the indexes of the inputs
+		ArrayList<GrnNode> inputIndexes = new ArrayList<GrnNode>(); // the indexes of the inputs
 		
 		// 2 loops for one gene: both synthesis and degradation reactions
 		// (we assume that reactions are listed *ordered* as we do in writeSBML())
-		int counter = 0;
 		for (
 		Iterator<?> i = model.getReactions().iterator(); i.hasNext(); ) {
 			
 			// get the next reaction and the modifiers
 			Reaction r = (Reaction) i.next();
-			Gene target = (Gene)getNode(getGeneReactantId(r));
+			GrnNode target = (GrnNode)getNode(getGeneReactantId(r));
 			
 			if (target == null)
 				log_.log(Level.WARNING, "Error: " + getGeneReactantId(r));
@@ -290,7 +320,7 @@ public class GeneNetwork extends ImodNetwork {
 			for (
 			Iterator<?> j = modifiers.iterator(); j.hasNext();) {
 				ModifierSpeciesReference speciesReference = (ModifierSpeciesReference) j.next();
-				Gene source = (Gene)getNode(speciesReference.getSpecies());
+				GrnNode source = (GrnNode)getNode(speciesReference.getSpecies());
 				inputIndexes.add(source);
 				
 				// The edge type is unknown for now, it is initialized later
@@ -306,17 +336,38 @@ public class GeneNetwork extends ImodNetwork {
 			}
 			
 			// in the second iteration for this gene
-			if (counter%2 == 1) {
+			if (r.getId().contains("degradation") || target instanceof Environment)
+			{
 				// set parameters in gene
-				target.initialization(parameterNames, parameterValues, inputIndexes);
-				inputIndexes = new ArrayList<Gene>(); // don't clear because the reference was copied to the gene
+				GrnNode g = (GrnNode)target;
+				g.initialization(parameterNames, parameterValues, inputIndexes);
+				inputIndexes = new ArrayList<GrnNode>(); // don't clear because the reference was copied to the gene
 				parameterNames.clear(); // reset (they were not copied)
 				parameterValues.clear();
 			}
-			counter++;
 		}
 		setEdgeTypesAccordingToDynamicalModel();
 		signed_ = true;
+	}
+
+
+	private Node createNode(List<Species> species, String id)
+	{
+		GrnNode node = null;
+		if (id.contains("ConstantEnv"))
+		{
+			node = new ConstantEnvironment(this);
+		}
+		else if (id.contains("LinearEnv"))
+		{
+			node = new LinearEnvironment(this);
+		}
+		else if (!id.equals("_void_"))
+		{
+			node = new HillGene(this);
+		}
+
+		return node;
 	}
 
 	
@@ -329,7 +380,7 @@ public class GeneNetwork extends ImodNetwork {
 	public void setEdgeTypesAccordingToDynamicalModel() {
 		
 		for (int i=0; i<nodes_.size(); i++) {
-			((HillGene)nodes_.get(i)).setInputEdgeTypesAccordingToDynamicalModel();
+			((GrnNode)nodes_.get(i)).setInputEdgeTypesAccordingToDynamicalModel();
 		}
 	}
 	
@@ -341,14 +392,14 @@ public class GeneNetwork extends ImodNetwork {
 	 * @param gene Gene perturbed
 	 * @return Instance of all genes that perturbed the gene given in parameter.
 	 */
-	public ArrayList<Gene> getInputs(Gene gene) {
+	public ArrayList<GrnNode> getInputs(Node node) {
 		
-		ArrayList<Gene> inputs = new ArrayList<Gene>();
+		ArrayList<GrnNode> inputs = new ArrayList<GrnNode>();
 
 		for (int i=0; i < edges_.size(); i++) {
-			if (edges_.get(i).getTarget().getLabel().equals(gene.getLabel())) {
+			if (edges_.get(i).getTarget().getLabel().equals(node.getLabel())) {
 				String source = edges_.get(i).getSource().getLabel();
-				inputs.add((Gene) getNode(source));
+				inputs.add((GrnNode) getNode(source));
 			}
 		}
 		
@@ -424,49 +475,56 @@ public class GeneNetwork extends ImodNetwork {
 			Node current = nodes_.get(i);
 			String currentGeneID = current.getLabel();
 			// The modifiers (regulators) of gene i
-			ArrayList<Gene> inputIndexes = ((Gene)current).getInputGenes();
+			if ( current instanceof Gene)
+			{			
+				ArrayList<GrnNode> inputIndexes = ((GrnNode)current).getInputGenes();
   
-			// SYNTHESIS REACTION
-			KineticLaw kineticLaw = new KineticLaw ();
-			String reactionId = currentGeneID + "_synthesis";
-			String name = reactionId + ": " + ((Gene)current).toString();
-			Reaction reaction = new Reaction (reactionId, name);
-			reaction.setReversible (false);
-			reaction.addReactant(species[size]);
-			reaction.addProduct(species[i]);
-			for (int r=0; r<inputIndexes.size(); r++) // set gene modifiers
-//				reaction.addModifier(species[inputIndexes.get(r)]);
-				reaction.addModifier(species[nodes_.indexOf(inputIndexes.get(r))]);
+				// SYNTHESIS REACTION
+				KineticLaw kineticLaw = new KineticLaw ();
+				String reactionId = currentGeneID + "_synthesis";
+				String name = reactionId + ": " + ((GrnNode)current).toString();
+				Reaction reaction = new Reaction (reactionId, name);
+				reaction.setReversible (false);
+				reaction.addReactant(species[size]);
+				reaction.addProduct(species[i]);
+				for (int r=0; r<inputIndexes.size(); r++) // set gene modifiers
+//					reaction.addModifier(species[inputIndexes.get(r)]);
+					reaction.addModifier(species[nodes_.indexOf(inputIndexes.get(r))]);
   
-			ArrayList<String> names = new ArrayList<String>(); // parameters names
-			ArrayList<Double> values = new ArrayList<Double>(); // parameters values
-			((Gene)nodes_.get(i)).compileParameters(names, values);
+				ArrayList<String> names = new ArrayList<String>(); // parameters names
+				ArrayList<Double> values = new ArrayList<Double>(); // parameters values
+				((Gene)nodes_.get(i)).compileParameters(names, values);
 			
-			// save gene parameters (note, the first param is the degradation rate)
-			for (int p=1; p<names.size(); p++) {
-				String id = names.get(p);// + "_" + currentGeneID;
-				kineticLaw.addParameter(new Parameter(id, id, values.get(p)));
-			}
-			String mathSynth = createSynthesisFormula((HillGene)current);
-			kineticLaw.setMath(mathSynth);
+				// save gene parameters (note, the first param is the degradation rate)
+				for (int p=1; p<names.size(); p++) {
+					String id = names.get(p);// + "_" + currentGeneID;
+					kineticLaw.addParameter(new Parameter(id, id, values.get(p)));
+				}
+				String mathSynth = createSynthesisFormula((HillGene)current);
+				kineticLaw.setMath(mathSynth);
 
-			reaction.setKineticLaw(kineticLaw);
-			model.addReaction(reaction);
+				reaction.setKineticLaw(kineticLaw);
+				model.addReaction(reaction);
   
-			// DEGRADATION REACTION
-			kineticLaw = new KineticLaw ();
-			reactionId = currentGeneID + "_degradation";
-			reaction = new Reaction (reactionId, reactionId);
-			reaction.setReversible(false);
-			reaction.addReactant(species[i]);
-			reaction.addProduct(species[size]);
+				// DEGRADATION REACTION
+				kineticLaw = new KineticLaw ();
+				reactionId = currentGeneID + "_degradation";
+				reaction = new Reaction (reactionId, reactionId);
+				reaction.setReversible(false);
+				reaction.addReactant(species[i]);
+				reaction.addProduct(species[size]);
   
-			String id = names.get(0);
-			kineticLaw.addParameter(new Parameter(id, id, values.get(0)));
-			String mathDeg = createDegradationFormula(current);
-			kineticLaw.setMath(mathDeg);
-			reaction.setKineticLaw (kineticLaw);
-			model.addReaction (reaction);
+				String id = names.get(0);
+				kineticLaw.addParameter(new Parameter(id, id, values.get(0)));
+				String mathDeg = createDegradationFormula(current);
+				kineticLaw.setMath(mathDeg);
+				reaction.setKineticLaw (kineticLaw);
+				model.addReaction (reaction);
+			}
+			else if(current instanceof Environment)
+			{
+				((Environment) current).writeSBML(model, species[i], species[size]);
+			}
 		}
 		
 		try
@@ -745,7 +803,7 @@ public class GeneNetwork extends ImodNetwork {
 
 		numTfs_ = 0;
 		for (int i=0; i<nodes_.size(); i++)
-			if (getGene(i).getIsTf())
+			if (isGene(i) && getGene(i).getIsTf())
 				numTfs_++;
 	}
 
@@ -762,8 +820,9 @@ public class GeneNetwork extends ImodNetwork {
 		int tfCount = -1;
 		int index = 0;
 
-		for (; index<nodes_.size(); index++) {
-			if (getGene(index).getIsTf()) {
+		for (; index<nodes_.size(); index++) 
+		{
+			if (isGene(index) && getGene(index).getIsTf()) {
 				tfCount++;
 				if (tfCount == tfIndex)
 					break;
@@ -824,11 +883,15 @@ public class GeneNetwork extends ImodNetwork {
 		
 		int size = getSize();
 		
-		for (int i=0; i < size; i++) {
-			if (GnwSettings.getInstance().getModelTranslation())
-				productionRates[i] = ((Gene)nodes_.get(i)).computeMRnaProductionRate(i, y_);
-			else
-				productionRates[i] = ((Gene)nodes_.get(i)).computeMRnaProductionRate(i, x_);
+		for (int i=0; i < size; i++) 
+		{
+			if ( nodes_.get(i) instanceof Gene)
+			{
+				if (GnwSettings.getInstance().getModelTranslation())
+					productionRates[i] = ((Gene)nodes_.get(i)).computeMRnaProductionRate(i, y_);
+				else
+					productionRates[i] = ((Gene)nodes_.get(i)).computeMRnaProductionRate(i, x_);
+			}
 		}
 	}
 	
@@ -847,9 +910,27 @@ public class GeneNetwork extends ImodNetwork {
 		
 		for (int i=0; i < size; i++) {
 			if (GnwSettings.getInstance().getModelTranslation())
-				productionRates.set(i, ((Gene)nodes_.get(i)).computeMRnaProductionRate(i, y_));
+			{
+				if(isGene(i))
+				{
+					productionRates.set(i, ((Gene)nodes_.get(i)).computeMRnaProductionRate(i, y_));
+				}
+				else
+				{
+					productionRates.set(i, ((Environment)nodes_.get(i)).computeDxdt());
+				}
+			}
 			else
-				productionRates.set(i, ((Gene)nodes_.get(i)).computeMRnaProductionRate(i, x_));
+			{
+				if(isGene(i))
+				{
+					productionRates.set(i, ((Gene)nodes_.get(i)).computeMRnaProductionRate(i, x_));
+				}
+				else
+				{
+					productionRates.set(i, ((Environment)nodes_.get(i)).computeDxdt());
+				}
+			}
 		}
 	}
 	
@@ -861,7 +942,16 @@ public class GeneNetwork extends ImodNetwork {
 		int size = getSize();
 		
 		for (int i=0; i<size; i++)
-			productionRates.set(i, ((Gene)nodes_.get(i)).computeProteinProductionRate(x_.get(i)));
+		{
+			if(isGene(i))
+			{
+				productionRates.set(i, ((Gene)nodes_.get(i)).computeProteinProductionRate(x_.get(i)));			
+			}
+			else
+			{
+				productionRates.set(i, ((Environment)nodes_.get(i)).computeDxdt());
+			}
+		}
 	}
 	
 	
@@ -872,7 +962,16 @@ public class GeneNetwork extends ImodNetwork {
 		int size = getSize();
 		
 		for (int i=0; i<size; i++)
-			degradationRates.set(i, ((Gene)nodes_.get(i)).computeMRnaDegradationRate(x_.get(i)));
+		{
+			if(isGene(i))
+			{
+				degradationRates.set(i, ((Gene)nodes_.get(i)).computeMRnaDegradationRate(x_.get(i)));
+			}
+			else
+			{
+				degradationRates.set(i,0);
+			}
+		}
 	}
 	
 	
@@ -883,15 +982,33 @@ public class GeneNetwork extends ImodNetwork {
 		int size = getSize();
 		
 		for (int i=0; i<size; i++)
-			degradationRates.set(i, ((Gene)nodes_.get(i)).computeProteinDegradationRate(y_.get(i)));
+		{
+			if(isGene(i))
+			{
+				degradationRates.set(i, ((Gene)nodes_.get(i)).computeProteinDegradationRate(y_.get(i)));
+			}
+			else
+			{
+				degradationRates.set(i,0);
+			}
+		}
 	}
 	
+	public void addEnvironment(Environment env)
+	{
+		nodes_.add(env);
+		for (int indx : env.getTargetGenes())
+		{
+			Node target = nodes_.get(indx);
+			edges_.add( new Edge(env, target, Edge.ENHANCER) );
+		}
+	}
 	
 	// ============================================================================
 	// SETTERS AND GETTERS
 	
 	public Gene getGene(int i) { return (Gene)nodes_.get(i); }
-	
+	public boolean isGene(int i) { return (nodes_.get(i) instanceof Gene);}
 	public DoubleMatrix1D getX() { return x_; }
 	public void setX(DoubleMatrix1D x) { x_ = x; }
 	

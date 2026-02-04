@@ -74,7 +74,12 @@ public class PerturbationSingleGene extends Perturbation {
 	public void applyPerturbation(int k) {
 		
 		for (int i=0; i<numGenes_; i++)
-			grn_.getGene(i).setMax( perturbations_.get(k,i) );
+		{
+			if (grn_.isGene(i))
+			{
+				grn_.getGene(i).setMax( perturbations_.get(k,i) );
+			}
+		}
 	}
 	
 	
@@ -85,7 +90,12 @@ public class PerturbationSingleGene extends Perturbation {
 		
 		wildType_ = new DenseDoubleMatrix1D(numGenes_);
 		for (int i=0; i<numGenes_; i++)
-			wildType_.set(i, grn_.getGene(i).getMax());
+		{
+			if (grn_.isGene(i))
+			{
+				wildType_.set(i, grn_.getGene(i).getMax());
+			}
+		}
 	}
 	
 	
@@ -95,6 +105,11 @@ public class PerturbationSingleGene extends Perturbation {
 	public void restoreWildType() {
 		
 		for (int i=0; i<numGenes_; i++)
-			grn_.getGene(i).setMax( wildType_.get(i) );
+		{
+			if (grn_.isGene(i))
+			{
+				grn_.getGene(i).setMax( wildType_.get(i) );
+			}
+		}
 	}
 }

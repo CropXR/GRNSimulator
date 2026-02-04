@@ -586,8 +586,9 @@ public class CompendiumWriter {
 		ArrayList<String[]> tfList = new ArrayList<String[]>();
 		
 		// For every node, check whether it's in the TF list or a regulator in the gold standard
-		for (int i=0; i<comp_.grn_.getSize(); i++) {
-			if (comp_.grn_.getGene(i).getIsTf()) {
+		for (int i=0; i<comp_.grn_.getSize(); i++) 
+		{
+			if (comp_.grn_.isGene(i) && comp_.grn_.getGene(i).getIsTf()) {
 				String[] tf = { comp_.grn_.getGene(i).getLabel() };
 				tfList.add(tf);
 			}

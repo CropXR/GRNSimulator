@@ -27,7 +27,6 @@ THE SOFTWARE.
 package ch.epfl.lis.gnw;
 
 import cern.colt.matrix.DoubleMatrix1D;
-import ch.epfl.lis.networks.Node;
 
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -45,7 +44,7 @@ import java.util.logging.Logger;
  * @author Thomas Schaffter (firstname.name@gmail.com)
  * 
  */
-abstract public class Gene extends Node {
+abstract public class Gene extends GrnNode {
 
 	/** Maximum transcription rate */
 	protected double max_ = -1;
@@ -59,15 +58,6 @@ abstract public class Gene extends Node {
 	protected boolean isTf_ = false;
 	/** Perturbation of basal transcription rate */
 	//protected double perturbationBasalActivation_ = 0;
-	
-	/** Reference to the gene regulatory network of this gene */
-	protected GeneNetwork grn_ = null;
-	
-	/** 
-	 * An array with references to the inputs of this gene. The order defines which
-	 * input goes where. E.g., inputGenes_[0] is the first input of the first module. 
-	 */
-	protected ArrayList<Gene> inputGenes_ = null;
 	
     /** Logger for this class */
 	@SuppressWarnings("unused")
@@ -129,7 +119,7 @@ abstract public class Gene extends Node {
 	// ----------------------------------------------------------------------------
 	
 	/** Initialization of the gene with the given list of parameters and inputs */
-	public void initialization(ArrayList<String> paramNames, ArrayList<Double> paramValues, ArrayList<Gene> inputGenes) {
+	public void initialization(ArrayList<String> paramNames, ArrayList<Double> paramValues, ArrayList<GrnNode> inputGenes) {
 		
 		inputGenes_ = inputGenes;
 		// Initialize all Gene parameters (max_, delta_, maxTranslation_, and deltaProtein_)
@@ -211,7 +201,6 @@ abstract public class Gene extends Node {
 		}
 	}
 
-		
 	// ============================================================================
 	// SETTERS AND GETTERS
 
@@ -233,7 +222,5 @@ abstract public class Gene extends Node {
 	public boolean getIsTf() { return isTf_; }
 	public void setIsTf(boolean isTf) { isTf_ = isTf; }
 
-	public ArrayList<Gene> getInputGenes() {return inputGenes_; }
-	public void setInputGenes(ArrayList<Gene> inputs) { inputGenes_ = inputs; }
 	
 }
