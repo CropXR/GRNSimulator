@@ -21,6 +21,7 @@ import ch.epfl.lis.gnw.GeneNetwork;
 import ch.epfl.lis.gnw.GnwSettings;
 import ch.epfl.lis.gnw.LinearEnvironment;
 import ch.epfl.lis.gnw.NetworkCreator;
+import ch.epfl.lis.gnw.OscillatingEnvironment;
 import ch.epfl.lis.gnw.Parser;
 import ch.epfl.lis.gnw.SubnetExtractor;
 import ch.epfl.lis.gnw.evaluation.PerformanceEvaluator;
@@ -529,6 +530,7 @@ public class Main {
   				
   				grn.addEnvironment(new ConstantEnvironment(grn, new int[]{8}, "ConstantEnv1", 0.5));
   				grn.addEnvironment(new LinearEnvironment(grn, new int[] {9}, "LinearEnv2", 1, 0.001));
+  				grn.addEnvironment(new OscillatingEnvironment(grn, new int[] {7}, "OscillatingEnv3", 0, 0.01, 0.4,0.5));
 
   				grn.randomInitialization();
   			

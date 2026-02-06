@@ -64,7 +64,6 @@ import javax.swing.text.StyledDocument;
 
 import ch.epfl.lis.gnw.GnwSettings;
 import ch.epfl.lis.utilities.filefilters.FilenameUtilities;
-import ch.epfl.lis.gnwgui.Folder;
 import ch.epfl.lis.gnwgui.windows.GnwGuiWindow;
 import ch.epfl.lis.imod.ImodNetwork;
 import ch.epfl.lis.networks.HierarchicalScaleFreeNetwork;
@@ -695,7 +694,6 @@ public class GnwGui extends GnwGuiWindow {
 	/**
 	 * Start the exit process when user press on ESCAPE.
 	 */
-	@SuppressWarnings("serial")
 	public void keyboardExit(JComponent jp) {
 		KeyStroke k = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0);
 		jp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(k, "EXIT");

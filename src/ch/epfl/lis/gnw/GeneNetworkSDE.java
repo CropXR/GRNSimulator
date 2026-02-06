@@ -139,7 +139,7 @@ public class GeneNetworkSDE extends Sde {
 			F.set(i, V_.get(i)-D_.get(i));
 			
 			// Set diffusion matrix
-			sqrt = Math.sqrt(V_.get(i) + D_.get(i));
+			sqrt = Math.sqrt(Math.abs(V_.get(i)) + Math.abs(D_.get(i)));
 			if (sqrt.isNaN()) {
 				throw new Exception("NaN mRNA");
 			}
@@ -163,7 +163,7 @@ public class GeneNetworkSDE extends Sde {
 				F.set(index, V_.get(i)-D_.get(i));
 				
 				// Set diffusion matrix
-				sqrt = Math.sqrt(V_.get(i) + D_.get(i));
+				sqrt = Math.sqrt(Math.abs(V_.get(i)) + Math.abs(D_.get(i)));
 				if (sqrt.isNaN())
 					throw new Exception("NaN protein");
 				else

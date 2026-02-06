@@ -161,7 +161,8 @@ abstract public class Gene extends GrnNode {
 	abstract protected void subclassCompileParameters(ArrayList<String> names, ArrayList<Double> values);
 	/** Initialize the gene's parameters from an array (the number and type of params depends on the subclass) */	
 	abstract protected void subclassInitialization(ArrayList<String> paramNames, ArrayList<Double> paramValues);
-	
+	abstract public void setInputEdgeTypesAccordingToDynamicalModel();
+
 	
 	// ============================================================================
 	// PRIVATE METHODS

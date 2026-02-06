@@ -74,6 +74,7 @@ public class GeneNetwork extends ImodNetwork {
 	/** The number of regulators in the network (must be initialized using markTfs()) */
 	private int numTfs_ = -1;
 	
+	private double time_ = 0;
     /** Logger for this class */
     private static Logger log_ = Logger.getLogger(GeneNetwork.class.getName());
 	/** SBML file format (see load()) */
@@ -227,7 +228,7 @@ public class GeneNetwork extends ImodNetwork {
 			}
 			else if (nodes_.get(i) instanceof Environment)
 			{
-				dxydt[i] = ((Environment)nodes_.get(i)).computeDxdt();
+				dxydt[i] = ((Environment)nodes_.get(i)).computeDxdt(time_);
 			}		
 		}
 		
@@ -241,7 +242,7 @@ public class GeneNetwork extends ImodNetwork {
 				}
 				else if (nodes_.get(i) instanceof Environment)
 				{
-					dxydt[size+i] = ((Environment)nodes_.get(i)).computeDxdt();
+					dxydt[size+i] = ((Environment)nodes_.get(i)).computeDxdt(time_);
 				}	
 			}
 		}
@@ -283,8 +284,8 @@ public class GeneNetwork extends ImodNetwork {
 
 		// -----------------------------------------
 		// Set the network size and create the genes
-		// do not count the species _void_
-		setSize(species.size()-1);
+		// do not count the species _void_ and _time_
+		setSize(species.size()-2);
 
 		for (int g=0; g < size; g++) 
 		{
@@ -310,7 +311,7 @@ public class GeneNetwork extends ImodNetwork {
 			Reaction r = (Reaction) i.next();
 			GrnNode target = (GrnNode)getNode(getGeneReactantId(r));
 			
-			if (target == null)
+			if (target == null && !getGeneReactantId(r).equals("_time_"))
 				log_.log(Level.WARNING, "Error: " + getGeneReactantId(r));
 	
 			// get all the genes modifying the target gene
@@ -321,10 +322,12 @@ public class GeneNetwork extends ImodNetwork {
 			Iterator<?> j = modifiers.iterator(); j.hasNext();) {
 				ModifierSpeciesReference speciesReference = (ModifierSpeciesReference) j.next();
 				GrnNode source = (GrnNode)getNode(speciesReference.getSpecies());
-				inputIndexes.add(source);
-				
-				// The edge type is unknown for now, it is initialized later
-				edges_.add(new Edge(source, target, Edge.UNKNOWN));
+				if(source != null )
+				{
+					inputIndexes.add(source);
+					// The edge type is unknown for now, it is initialized later
+					edges_.add(new Edge(source, target, Edge.UNKNOWN));
+				}
 			}
 		
 			// compile parameters list of gene
@@ -362,7 +365,11 @@ public class GeneNetwork extends ImodNetwork {
 		{
 			node = new LinearEnvironment(this);
 		}
-		else if (!id.equals("_void_"))
+		else if (id.contains("OscillatingEnv"))
+		{
+			node = new OscillatingEnvironment(this);
+		}
+		else if (!id.equals("_void_") &&!id.equals("_time_") )
 		{
 			node = new HillGene(this);
 		}
@@ -379,8 +386,12 @@ public class GeneNetwork extends ImodNetwork {
 	 */
 	public void setEdgeTypesAccordingToDynamicalModel() {
 		
-		for (int i=0; i<nodes_.size(); i++) {
-			((GrnNode)nodes_.get(i)).setInputEdgeTypesAccordingToDynamicalModel();
+		for (int i=0; i<nodes_.size(); i++) 
+		{
+			if (nodes_.get(i) instanceof Gene)
+			{
+				((Gene)nodes_.get(i)).setInputEdgeTypesAccordingToDynamicalModel();			
+			}
 		}
 	}
 	
@@ -433,7 +444,7 @@ public class GeneNetwork extends ImodNetwork {
 	 * @param filename URL to the file describing the network to load
 	 * @throws IOException
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused"})
 	public int writeSBML(URL filename) throws IOException {
 		
 		Model model = new Model(id_);
@@ -449,7 +460,7 @@ public class GeneNetwork extends ImodNetwork {
 
 		// Hack in pattern expression in sbml2 library to allow any char to compose
 		// the identifier of a gene (hack in top of SBaseId.java)
-		Species[] species = new Species[size+1];
+		Species[] species = new Species[size+2];
   
 		for (int s=0; s < size; s++) { // save gene as species
 //			species[s] = new Species(nodeIds_.get(s), nodeIds_.get(s));
@@ -467,7 +478,14 @@ public class GeneNetwork extends ImodNetwork {
 		species[size].setConstant(true);
 		model.addSpecies(species[size]);
 		
+		// create the time species
+		species[size+1] = new Species("_time_", "_time_");
+		species[size+1].setCompartment(compartment);
+		species[size+1].setInitialAmount(0);
+		model.addSpecies(species[size+1]);
+				
 		// SET SYNTHESIS AND DEGRADATION REACTIONS FOR EVERY GENE
+		boolean environment = false;
 		for (int i=0; i<size; i++) {
 
 			// the ID of gene i
@@ -493,7 +511,7 @@ public class GeneNetwork extends ImodNetwork {
   
 				ArrayList<String> names = new ArrayList<String>(); // parameters names
 				ArrayList<Double> values = new ArrayList<Double>(); // parameters values
-				((Gene)nodes_.get(i)).compileParameters(names, values);
+				((GrnNode)nodes_.get(i)).compileParameters(names, values);
 			
 				// save gene parameters (note, the first param is the degradation rate)
 				for (int p=1; p<names.size(); p++) {
@@ -523,7 +541,22 @@ public class GeneNetwork extends ImodNetwork {
 			}
 			else if(current instanceof Environment)
 			{
-				((Environment) current).writeSBML(model, species[i], species[size]);
+				if (!environment)
+				{
+					//We don't have an environment yet. Create a "time" node to ensure
+					//We can use time explicitly.
+					Environment dummy = new LinearEnvironment(this, new int[] {}, "_time_", 0, 1);
+					ArrayList<String> names = new ArrayList<String>(); // parameters names
+					ArrayList<Double> values = new ArrayList<Double>(); // parameters values
+					dummy.compileParameters(names, values);
+					dummy.writeSBML(model, species[size+1], species[size], names, values);
+					environment = true;
+				}
+				ArrayList<String> names = new ArrayList<String>(); // parameters names
+				ArrayList<Double> values = new ArrayList<Double>(); // parameters values
+				((GrnNode)nodes_.get(i)).compileParameters(names, values);
+
+				((Environment) current).writeSBML(model, species[i], species[size], names, values);
 			}
 		}
 		
@@ -917,7 +950,7 @@ public class GeneNetwork extends ImodNetwork {
 				}
 				else
 				{
-					productionRates.set(i, ((Environment)nodes_.get(i)).computeDxdt());
+					productionRates.set(i, ((Environment)nodes_.get(i)).computeDxdt(time_));
 				}
 			}
 			else
@@ -928,7 +961,7 @@ public class GeneNetwork extends ImodNetwork {
 				}
 				else
 				{
-					productionRates.set(i, ((Environment)nodes_.get(i)).computeDxdt());
+					productionRates.set(i, ((Environment)nodes_.get(i)).computeDxdt(time_));
 				}
 			}
 		}
@@ -949,7 +982,7 @@ public class GeneNetwork extends ImodNetwork {
 			}
 			else
 			{
-				productionRates.set(i, ((Environment)nodes_.get(i)).computeDxdt());
+				productionRates.set(i, ((Environment)nodes_.get(i)).computeDxdt(time_));
 			}
 		}
 	}
@@ -1017,4 +1050,9 @@ public class GeneNetwork extends ImodNetwork {
 	
 	public int getNumTfs() { return numTfs_; }
 	
+	public void increaseTime(double delta) { time_ += delta;}
+	
+	public void resetTime() { time_ = 0;}
+	
+	public double getTime() { return time_;}
 }

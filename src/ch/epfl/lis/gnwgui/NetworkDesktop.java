@@ -90,7 +90,6 @@ public class NetworkDesktop extends IDesktop
 	// ----------------------------------------------------------------------------
 
 	/** Initialization of the desktop */
-	@SuppressWarnings("serial")
 	public void init()
 	{
 		GnwGuiSettings global = GnwGuiSettings.getInstance();
@@ -520,7 +519,6 @@ public class NetworkDesktop extends IDesktop
 	 * Show the options window when the user presses ENTER on an element from
 	 * the desktop.
 	 */
-	@SuppressWarnings("serial")
 	public void displayOptionsDialog(JComponent jp)
 	{
 		KeyStroke k = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
@@ -539,7 +537,6 @@ public class NetworkDesktop extends IDesktop
 	/**
 	 * Action to do when F2 or R are pressed.
 	 */
-	@SuppressWarnings("serial")
 	public void displayRenameDialog(JComponent jp) {
 		KeyStroke k = KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0);
 		KeyStroke k2 = KeyStroke.getKeyStroke(KeyEvent.VK_R, 0);
@@ -564,7 +561,6 @@ public class NetworkDesktop extends IDesktop
 	/**
 	 * Action to do when E is pressed.
 	 */
-	@SuppressWarnings("serial")
 	public void displayExtractionDialog(JComponent jp) {
 		KeyStroke k = KeyStroke.getKeyStroke(KeyEvent.VK_E, 0);
 		jp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(k, "DISPLAY_EXTRACTION_DIALOG");
@@ -580,7 +576,6 @@ public class NetworkDesktop extends IDesktop
 	/**
 	 * Action to do when K is pressed.
 	 */
-	@SuppressWarnings("serial")
 	public void displayKineticModelGenerationDialog(JComponent jp) {
 		KeyStroke k = KeyStroke.getKeyStroke(KeyEvent.VK_K, 0);
 		jp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(k, "DISPLAY_KINETIC_MODEL_GENERATION_DIALOG");
@@ -596,7 +591,6 @@ public class NetworkDesktop extends IDesktop
 	/**
 	 * Action to do when V is pressed.
 	 */
-	@SuppressWarnings("serial")
 	public void displayVisualizationDialog(JComponent jp) {
 		KeyStroke k = KeyStroke.getKeyStroke(KeyEvent.VK_V, 0);
 		jp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(k, "DISPLAY_VISUALIZATION_DIALOG");
@@ -612,7 +606,6 @@ public class NetworkDesktop extends IDesktop
 	/**
 	 * Action to do when O (letter) is pressed.
 	 */
-	@SuppressWarnings("serial")
 	public void displayOpenDialog(JComponent jp) {
 		KeyStroke k = KeyStroke.getKeyStroke(KeyEvent.VK_O, 0);
 		jp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(k, "DISPLAY_OPEN_DIALOG");
@@ -628,7 +621,6 @@ public class NetworkDesktop extends IDesktop
 	/**
 	 * Action to do when A (letter) is pressed.
 	 */
-	@SuppressWarnings("serial")
 	public void anonymizeNetwork(JComponent jp) {
 		KeyStroke k = KeyStroke.getKeyStroke(KeyEvent.VK_A, 0);
 		jp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(k, "ANONYMIZE_NETWORK");
@@ -645,7 +637,6 @@ public class NetworkDesktop extends IDesktop
 	/**
 	 * Action to do when M (letter) is pressed.
 	 */
-	@SuppressWarnings("serial")
 	public void countNumMotifs(JComponent jp) {
 		KeyStroke k = KeyStroke.getKeyStroke(KeyEvent.VK_M, 0);
 		jp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(k, "ANALYZE_MOTIFS");
@@ -661,7 +652,6 @@ public class NetworkDesktop extends IDesktop
 	/**
 	 * Action to do when S is pressed.
 	 */
-	@SuppressWarnings("serial")
 	public void displaySaveDialog(JComponent jp) {
 		KeyStroke k = KeyStroke.getKeyStroke(KeyEvent.VK_S, 0);
 		jp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(k, "DISPLAY_SAVE_DIALOG");
@@ -675,7 +665,6 @@ public class NetworkDesktop extends IDesktop
 	// ----------------------------------------------------------------------------
 
 	/** Action to do when B is pressed. */
-	@SuppressWarnings("serial")
 	public void displayBenchmarkDialog(JComponent jp) {
 		KeyStroke k = KeyStroke.getKeyStroke(KeyEvent.VK_D, 0);
 		jp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(k, "DISPLAY_BENCHMARK_DIALOG");
@@ -689,7 +678,6 @@ public class NetworkDesktop extends IDesktop
 	// ----------------------------------------------------------------------------
 
 	/** Action to do when C is pressed. */
-	@SuppressWarnings("serial")
 	public void computeConnectivityDensity(JComponent jp)
 	{
 		KeyStroke k = KeyStroke.getKeyStroke(KeyEvent.VK_C, 0);
@@ -704,7 +692,6 @@ public class NetworkDesktop extends IDesktop
 	// ----------------------------------------------------------------------------
 
 	/** Action to do when Y is pressed. */
-	@SuppressWarnings("serial")
 	public void computeModularity(JComponent jp)
 	{
 		KeyStroke k = KeyStroke.getKeyStroke(KeyEvent.VK_Y, 0);

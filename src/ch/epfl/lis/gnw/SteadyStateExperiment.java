@@ -34,7 +34,6 @@ import cern.colt.matrix.DoubleMatrix1D;
 import cern.colt.matrix.DoubleMatrix2D;
 import cern.colt.matrix.impl.DenseDoubleMatrix2D;
 
-
 /** 
  * Implements experiments where the stead-state of the network is measured.
  * @author Daniel Marbach (firstname.name@gmail.com)
@@ -48,8 +47,6 @@ public class SteadyStateExperiment extends Experiment {
 	/** Perturbed steady-states for the proteins */
 	private DoubleMatrix2D ssPerturbationProteins_ = null;
 	
-	/** Time of the current steady-state computation */
-	private int t_ = 0;
 	/**
 	 * For SteadyStateExperimentODE: return the steady-states as soon as convergence is reached.
 	 * If there is no convergence until time maxt_, the values at this point are returned and a
@@ -324,7 +321,7 @@ public class SteadyStateExperiment extends Experiment {
 	private void computeSteadyState(double maxt) throws IllegalArgumentException, Exception {
 						
 		double[] xy0 = constructInitialCondition(); // initial condition
-		t_ = 0;
+		grn_.resetTime();
 		double dt = GnwSettings.getInstance().getDt();
 		
 		if (dt <= 0 || dt > maxt)
@@ -340,20 +337,22 @@ public class SteadyStateExperiment extends Experiment {
 		Solver solver = new Solver(solverType_, grn_, xy0);
 
 		do {
-			double t1 = t_;
+			double t1 = grn_.getTime();
 			// this steps the time by dt_, but using a smaller internal step size of the solver
 			// (getRate() may be called several times for one step)
-			t_ += solver.step();
+			double delta = solver.step();
 			
-			if (t_ != t1 + dt)
-				throw new RuntimeException("Solver failed to step time by dt, expected t = " + (t1+dt) + ", obtained t = " + t_);
+			grn_.increaseTime(delta);
 			
-		} while (!solver.converged() && t_ < maxt);
+			if (grn_.getTime() != t1 + dt)
+				throw new RuntimeException("Solver failed to step time by dt, expected t = " + (t1+dt) + ", obtained t = " + grn_.getTime());
+			
+		} while (!solver.converged() && grn_.getTime() < maxt);
 		// note, the state at the last step is already saved both in ODE.state and grn.x_, grn.y_
 		
 		// save the time of this experiment
 		if (solverType_ == Solver.type.ODE)
-			timeToConvergenceODE_.add(t_);
+			timeToConvergenceODE_.add((int)(grn_.getTime()));
 		
 		// Check the max rate of change at the found solution
 		DoubleMatrix1D lastX = grn_.getX();
@@ -375,8 +374,9 @@ public class SteadyStateExperiment extends Experiment {
 			if (dxydt[i] > max)
 				max = dxydt[i];
 
-		log_.log(Level.INFO, "Saved state at t = " + t_ + ", with maximum dx_i/dt = " + max);
+		log_.log(Level.INFO, "Saved state at t = " + grn_.getTime() + ", with maximum dx_i/dt = " + max);
 		
+		grn_.resetTime();
 		//getSDESolver()
 		//if (solverType_ == Solver.type.SDE && solver.getXNegativeCounter() > 0)
 			//log_.log(Level.WARNING, "SDE: " + solver.getXNegativeCounter() + " times a concentration became negative due to noise and was set to 0");

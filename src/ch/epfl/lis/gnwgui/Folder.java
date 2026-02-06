@@ -4,7 +4,6 @@ import java.awt.Image;
 
 import javax.swing.ImageIcon;
 
-import ch.epfl.lis.gnwgui.GnwGuiSettings;
 import ch.epfl.lis.gnwgui.idesktop.IDesktop;
 import ch.epfl.lis.gnwgui.idesktop.IFolder;
 

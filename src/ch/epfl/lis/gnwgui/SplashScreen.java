@@ -89,7 +89,6 @@ public class SplashScreen extends JWindow {
 	 * @param displayTaskId Set to true to display some information about the tasks.
 	 * @param displayBar Set to true to display the progress bar.
 	 */
-	@SuppressWarnings("serial")
 	public SplashScreen(final Frame f, URL filename, Byte mode, 
 			boolean displayTaskId, boolean displayBar, boolean hiddenAfterClick){
 	

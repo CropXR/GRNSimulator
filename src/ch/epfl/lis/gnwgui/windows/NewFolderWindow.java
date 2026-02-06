@@ -42,8 +42,6 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import ch.epfl.lis.gnwgui.windows.GenericWindow;
-
 /** This dialog is used to rename a network.
  * 
  * @author Thomas Schaffter (firstname.name@gmail.com)

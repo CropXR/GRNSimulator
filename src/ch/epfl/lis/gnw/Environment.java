@@ -1,5 +1,6 @@
 package ch.epfl.lis.gnw;
 
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import jigcell.sbml2.Model;
@@ -7,8 +8,6 @@ import jigcell.sbml2.Species;
 
 abstract public class Environment extends GrnNode
 {	
-	/** Reference to the gene regulatory network of this environment */
-	protected double time_ = 0;
 	private int[] targetGenes_; 
 	// ============================================================================
 	// PUBLIC METHODS
@@ -35,20 +34,16 @@ abstract public class Environment extends GrnNode
 		label_ = label;
 	}	
 	
-	abstract public double computeActivity();
+	abstract public double computeActivity(double time);
 	
-	public void increaseTime(double delta)
-	{
-		time_ += delta;
-	}
-	
+
 	public int[] getTargetGenes()
 	{
 		return targetGenes_;
 	}
 	
-	abstract public void writeSBML(Model model, Species thisSpecies, Species voidSpecies);
-	abstract public double computeDxdt();
+	abstract public void writeSBML(Model model, Species thisSpecies, Species voidSpecies, ArrayList<String> names, ArrayList<Double> values);
+	abstract public double computeDxdt(double time);
 	abstract public double getInitialCondition();
 
 	/** Logger for this class */

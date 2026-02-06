@@ -52,8 +52,6 @@ import javax.swing.border.EmptyBorder;
 
 import ch.epfl.lis.animation.Snake;
 import ch.epfl.lis.gnwgui.GnwGuiSettings;
-import ch.epfl.lis.gnwgui.windows.GenericWindow;
-
 
 /** This dialog handles all the simulations parameters of steady-states and time-series experiments.
  * 

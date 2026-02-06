@@ -337,6 +337,7 @@ abstract public class IDesktop
 	// ----------------------------------------------------------------------------
 
 	/** Remove the given element on the desktop. If its children are displayed, they are also remove. */
+	@SuppressWarnings("unlikely-arg-type")
 	public void removeItemFromDesktop(IElement element)
 	{
 		Point pos = getElementPosition(element);
@@ -664,7 +665,6 @@ abstract public class IDesktop
 	// ----------------------------------------------------------------------------
 
 	/** Delete selected element */
-	@SuppressWarnings("serial")
 	public void deleteSelectedElement(JComponent jp)
 	{
 		KeyStroke k = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0);

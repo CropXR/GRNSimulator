@@ -36,7 +36,6 @@ abstract public class GrnNode extends Node
 	public void setInputGenes(ArrayList<GrnNode> inputs) { inputGenes_ = inputs; }
 	
 	abstract public void compileParameters(ArrayList<String> names, ArrayList<Double> values);
-	abstract public void setInputEdgeTypesAccordingToDynamicalModel();
 	abstract public void initialization(ArrayList<String> paramNames, ArrayList<Double> paramValues, ArrayList<GrnNode> inputGenes);
 
 }

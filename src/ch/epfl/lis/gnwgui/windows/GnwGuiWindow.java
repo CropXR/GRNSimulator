@@ -171,7 +171,6 @@ public class GnwGuiWindow {
 	/**
 	 * Initialize the contents of the frame
 	 */
-	@SuppressWarnings("serial")
 	private void initialize() {
 		
 		GnwGuiSettings settings = GnwGuiSettings.getInstance();

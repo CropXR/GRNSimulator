@@ -53,7 +53,6 @@ import javax.swing.UIManager;
 
 import ch.epfl.lis.animation.Snake;
 import ch.epfl.lis.gnwgui.GnwGuiSettings;
-import ch.epfl.lis.gnwgui.windows.GenericWindow;
 
 //import com.jgoodies.forms.factories.DefaultComponentFactory;
 

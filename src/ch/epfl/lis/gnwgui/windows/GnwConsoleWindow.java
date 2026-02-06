@@ -149,7 +149,6 @@ public class GnwConsoleWindow extends JDialog {
 	 * Shortcut to print the help inside the console.
 	 * @param jp JComponent that will respond to the action
 	 */
-	@SuppressWarnings("serial")
 	public void addHelpAction(JComponent jp) {
 	   KeyStroke k = KeyStroke.getKeyStroke("H");
 	   jp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(k, "help");
@@ -167,7 +166,6 @@ public class GnwConsoleWindow extends JDialog {
 	 * Shortcut to clear the content of the console.
 	 * @param jp JComponent that will respond to the action
 	 */
-	@SuppressWarnings("serial")
 	public void addClearAction(JComponent jp) {
 	   KeyStroke k = KeyStroke.getKeyStroke("C");
 	   jp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(k, "clear");
@@ -185,7 +183,6 @@ public class GnwConsoleWindow extends JDialog {
 	 * Shortcut to print the version of the software
 	 * @param jp JComponent that will respond to the action
 	 */
-	@SuppressWarnings("serial")
 	public void printVersionAction(JComponent jp) {
 	   KeyStroke k = KeyStroke.getKeyStroke("V");
 	   jp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(k, "versions");
@@ -203,7 +200,6 @@ public class GnwConsoleWindow extends JDialog {
 	 * Shortcut to print the version of the software
 	 * @param jp JComponent that will respond to the action
 	 */
-	@SuppressWarnings("serial")
 	public void quitConsole(JComponent jp) {
 	   KeyStroke k = KeyStroke.getKeyStroke("Q");
 	   jp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(k, "quit");

@@ -135,7 +135,7 @@ public class GnwConsoleHandler extends Handler {
 	 *            the name of the filter
 	 * @return the Filter object
 	 */
-	@SuppressWarnings("unused")
+	@SuppressWarnings({ "unused", "deprecation" })
 	private Filter makeFilter(String filterName) {
 		 @SuppressWarnings("rawtypes")
 		Class c = null;
@@ -160,6 +160,7 @@ public class GnwConsoleHandler extends Handler {
 	 *            the name of the formatter
 	 * @return Formatter object
 	 */
+	@SuppressWarnings("deprecation")
 	private Formatter makeFormatter(String formatterName) {
 		 @SuppressWarnings("rawtypes")
 		Class c = null;

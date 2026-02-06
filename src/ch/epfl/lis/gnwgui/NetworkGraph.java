@@ -410,7 +410,6 @@ public class NetworkGraph {
 	 * Add a key listener to print the content of the JPanel in which the graph is drawn.
 	 * @param jp JPanel that contains the network graph.
 	 */
-	@SuppressWarnings("serial")
 	public void addPrintAction(JComponent jp) {
 	   KeyStroke k = KeyStroke.getKeyStroke("alt P");
 	   jp.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(k, "printscreen");

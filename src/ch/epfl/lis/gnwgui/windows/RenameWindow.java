@@ -44,7 +44,6 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import ch.epfl.lis.gnwgui.windows.GenericWindow;
 import javax.swing.JLabel;
 
 /** This dialog is used to rename a network.

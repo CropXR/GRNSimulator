@@ -30,7 +30,7 @@ public class ConstantEnvironment extends Environment
 	}
 
 	@Override
-	public double computeActivity()
+	public double computeActivity(double time)
 	{
 		return envValue_;
 	}
@@ -38,18 +38,12 @@ public class ConstantEnvironment extends Environment
 	@Override
 	public void compileParameters(ArrayList<String> names, ArrayList<Double> values) 
 	{
-		// TODO Auto-generated method stub
-		
+		names.add("envValue");
+		values.add(envValue_);	
 	}
 
 	@Override
-	public void setInputEdgeTypesAccordingToDynamicalModel()
-	{
-		return;	
-	}
-
-	@Override
-	public void writeSBML(Model model, Species thisSpecies, Species voidSpecies) 
+	public void writeSBML(Model model, Species thisSpecies, Species voidSpecies, ArrayList<String> names, ArrayList<Double> values) 
 	{
 		//Constant environment, so only initial condition needed
 		thisSpecies.setInitialAmount(envValue_);
@@ -66,8 +60,12 @@ public class ConstantEnvironment extends Environment
 		reaction.setReversible(false);
 		reaction.addReactant(voidSpecies);
 		reaction.addProduct(thisSpecies);
-				
-		kineticLaw.addParameter(new Parameter("envValue", "envValue", envValue_));
+		
+		for (int p=0; p<names.size(); p++) 
+		{
+			String id = names.get(p);// + "_" + currentGeneID;
+			kineticLaw.addParameter(new Parameter(id, id, values.get(p)));
+		}
 
 		kineticLaw.setMath(math);
 
@@ -78,7 +76,7 @@ public class ConstantEnvironment extends Environment
 	}
 
 	@Override
-	public double computeDxdt() 
+	public double computeDxdt(double time) 
 	{
 		return 0;
 	}

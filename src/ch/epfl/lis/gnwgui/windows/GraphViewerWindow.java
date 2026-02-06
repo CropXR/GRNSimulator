@@ -41,7 +41,6 @@ import javax.swing.Box;
 import javax.swing.JPanel;
 
 import ch.epfl.lis.gnwgui.GnwGuiSettings;
-import ch.epfl.lis.gnwgui.windows.GenericWindow;
 
 import javax.swing.border.TitledBorder;
 

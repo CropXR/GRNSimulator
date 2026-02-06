@@ -32,27 +32,24 @@ public class LinearEnvironment extends Environment
 	}
 
 	@Override
-	public double computeActivity()
+	public double computeActivity(double time)
 	{
-		return startVal_ + time_ * rate_;
+		return startVal_ + time * rate_;
 	}
 
 	@Override
 	public void compileParameters(ArrayList<String> names, ArrayList<Double> values) 
 	{
-		// TODO Auto-generated method stub
+		names.add("startVal");
+		values.add(startVal_);	
 		
+		
+		names.add("rate");
+		values.add(rate_);		
 	}
 
 	@Override
-	public void setInputEdgeTypesAccordingToDynamicalModel() 
-	{
-		return;		
-	}	
-	
-
-	@Override
-	public void writeSBML(Model model, Species thisSpecies, Species voidSpecies) 
+	public void writeSBML(Model model, Species thisSpecies, Species voidSpecies, ArrayList<String> names, ArrayList<Double> values) 
 	{
 		thisSpecies.setInitialAmount(startVal_);
 		
@@ -69,8 +66,11 @@ public class LinearEnvironment extends Environment
 		
 		kineticLaw.setMath(math);
 		
-		kineticLaw.addParameter(new Parameter("startVal", "startVal", startVal_));
-		kineticLaw.addParameter(new Parameter("rate", "rate", rate_));
+		for (int p=0; p<names.size(); p++) 
+		{
+			String id = names.get(p);// + "_" + currentGeneID;
+			kineticLaw.addParameter(new Parameter(id, id, values.get(p)));
+		}
 
 		reaction.setKineticLaw(kineticLaw);
 		model.addReaction(reaction);
@@ -79,7 +79,7 @@ public class LinearEnvironment extends Environment
 	}
 
 	@Override
-	public double computeDxdt() 
+	public double computeDxdt(double time) 
 	{
 		return rate_;
 	}

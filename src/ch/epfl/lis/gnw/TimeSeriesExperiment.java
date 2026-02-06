@@ -325,6 +325,7 @@ public class TimeSeriesExperiment extends Experiment {
 
 		//if (GnwSettings.getInstance().getDt()*(numTimePoints_-1) != maxt_)
 			//throw new RuntimeException("dt * (numTimePoints-1) != maxt");
+		grn_.resetTime();
 		
 		if (xy0_ == null)
 			throw new RuntimeException("No initial condition set");
@@ -340,19 +341,19 @@ public class TimeSeriesExperiment extends Experiment {
 			tsProteins = new DenseDoubleMatrix2D(timePoints_.size(), numGenes_);
 
 		Solver solver = new Solver(solverType_, grn_, xy0_.toArray());
-		double t = 0;
-		
+		double delta = 0;
 		// for SDEs, simulate the wild-type for a short time to get a new independent sample
 		if (solverType_ == Solver.type.SDE) {
 			double tlim = GnwSettings.getInstance().getMintSDE(); //timePoints_.last()/10.0;
 			do {
 				try {
-					t += solver.step();
+					delta = solver.step();
+					grn_.increaseTime(delta);
 				} catch (Exception e) {
-					log_.log(Level.WARNING, "TimeSeriesExperiment.integrate(): Exception in phase 0, t = " + t + ":" + e.getMessage(), e);
+					log_.log(Level.WARNING, "TimeSeriesExperiment.integrate(): Exception in phase 0, t = " + grn_.getTime() + ":" + e.getMessage(), e);
 					throw new RuntimeException();
 				}
-			} while (t < tlim);
+			} while (grn_.getTime() < tlim);
 
 			// set this sample as the new initial condition
 			// This is dangerous, because the user doesn't expect run(xy0) to modify xy0. mintSDE should be set long
@@ -376,7 +377,7 @@ public class TimeSeriesExperiment extends Experiment {
 		{
 			perturbation_.applyPerturbation(k);
 		}
-		t = 0; // reset time, the time-series only really starts here
+		grn_.resetTime(); // reset time, the time-series only really starts here
 		int dt = GnwSettings.getInstance().getDt(); // step size of the solvers (not integration step size)
 		
 		//if (dt <= 0 || dt > timePoints_.last())
@@ -399,7 +400,7 @@ public class TimeSeriesExperiment extends Experiment {
 		//do {
 		while (iter.hasNext()) {
 			
-			double t1 = t;
+			double t1 = grn_.getTime();
 			double t2 = iter.next();
 
 			do {
@@ -408,24 +409,24 @@ public class TimeSeriesExperiment extends Experiment {
 					// to guarantee the specified tolerance (getRate() may be called several times for one step)
 					// For SDEs: this steps the time by dt_, the solver integrates with a smaller, fixed step size
 					// defined in SDESettings by dt_*multiplier_ (SDESettings.dt_ != TimeSeriesExperiment.dt_)
-					t += solver.step();
-					
-					if (t == t1 + dt)
-						t1 = t;
+					delta = solver.step();
+					grn_.increaseTime(delta);
+					if (grn_.getTime() == t1 + dt)
+						t1 = grn_.getTime();
 					else
-						throw new RuntimeException("Solver failed to step time by dt, expected t = " + (t1+dt) + ", obtained t = " + t);
+						throw new RuntimeException("Solver failed to step time by dt, expected t = " + (t1+dt) + ", obtained t = " + grn_.getTime());
 
 				} catch (Exception e) {
-					log_.log(Level.WARNING, "TimeSeriesExperiment.integrate(): Exception at t = " + t + ":" + e.getMessage(), e);
+					log_.log(Level.WARNING, "TimeSeriesExperiment.integrate(): Exception at t = " + grn_.getTime() + ":" + e.getMessage(), e);
 					throw new RuntimeException();
 				}
 						
-			} while (t < t2 - 1e-12);
+			} while (grn_.getTime() < t2 - 1e-12);
 				
-			if (t > t2 + 1e-12)
-				throw new RuntimeException("Time points must be a multiple of the step size. Attempting to step to time point " + t2 + " failed: t = " + t);
+			if (grn_.getTime() > t2 + 1e-12)
+				throw new RuntimeException("Time points must be a multiple of the step size. Attempting to step to time point " + t2 + " failed: t = " + grn_.getTime());
 			
-			if (restoreWildTypeAtHalftime_ && t >= tlim && !wildTypeRestored) {
+			if (restoreWildTypeAtHalftime_ && grn_.getTime() >= tlim && !wildTypeRestored) {
 				perturbation_.restoreWildType();
 				wildTypeRestored = true;
 			}
@@ -442,7 +443,7 @@ public class TimeSeriesExperiment extends Experiment {
 			pt++;
 		} //while (t < timePoints_.last());
 
-		assert t == timePoints_.last() : "t=" + t + " maxt=" + timePoints_.last();
+		assert grn_.getTime() == timePoints_.last() : "t=" + grn_.getTime() + " maxt=" + timePoints_.last();
 		assert pt == timePoints_.size();
 		
 		// make sure the wild-type is restored
@@ -453,6 +454,8 @@ public class TimeSeriesExperiment extends Experiment {
 		timeSeries_.add(ts);
 		if (modelTranslation_)
 			timeSeriesProteins_.add(tsProteins);
+		
+		grn_.resetTime();
 		
 		//getSDESolver()
 		//if (solverType_ == Solver.type.SDE && solver.getXNegativeCounter() > 0)

@@ -30,7 +30,6 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import ch.epfl.lis.gnwgui.Folder;
 import ch.epfl.lis.gnwgui.windows.NewFolderWindow;
 
 /**
