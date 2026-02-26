@@ -17,6 +17,7 @@ import org.apache.commons.math.ConvergenceException;
 import ch.epfl.lis.gnw.BenchmarkGeneratorDream4;
 import ch.epfl.lis.gnw.CancelException;
 import ch.epfl.lis.gnw.ConstantEnvironment;
+import ch.epfl.lis.gnw.EnvironmentParser;
 import ch.epfl.lis.gnw.GeneNetwork;
 import ch.epfl.lis.gnw.GnwSettings;
 import ch.epfl.lis.gnw.LinearEnvironment;
@@ -462,9 +463,11 @@ public class Main {
 		}
 		
 		ImodNetwork inetwork = null;
-		GeneNetwork gnetwork = null;
 		String id = null;
 		URL url = null;
+			
+		//parse any environment
+		url = GnwSettings.getInstance().getURL(settings.getString("outputPath") + "/" + "testEnvs.xml");
 		
 		if (element instanceof StructureElement)
 		{
@@ -473,26 +476,21 @@ public class Main {
 		}
 		else if (element instanceof DynamicalModelElement)
 		{
-			gnetwork = ((DynamicalModelElement)element).getGeneNetwork();
-			id = gnetwork.getId();
+			inetwork = ((DynamicalModelElement)element).getGeneNetwork();
+			id = inetwork.getId();
 		}
 		
-		
+		EnvironmentParser.parse(url.getFile(),inetwork);
+
 		if (settings.getInt("outputNetworkFormat") == ImodNetwork.TSV)
 		{
 			url = GnwSettings.getInstance().getURL(settings.getString("outputPath") + "/" + id + ".tsv");
-			
-			if (inetwork != null) inetwork.saveTSV(url);
-			else if (gnetwork != null) gnetwork.saveTSV(url);
+			inetwork.saveTSV(url);
 		}
 		else if (settings.getInt("outputNetworkFormat") == 3) // TSV with null interactions written
 		{
 			url = GnwSettings.getInstance().getURL(settings.getString("outputPath") + "/" + id + ".tsv");
-			Parser parser = null;
-			
-			if (inetwork != null) parser = new Parser(inetwork, url);
-			else if (gnetwork != null) parser = new Parser(gnetwork, url);
-			
+			Parser parser = new Parser(inetwork, url);	
 			parser.writeGoldStandard();
 		 }
 		 else if (settings.getInt("outputNetworkFormat") == ImodNetwork.GML)
@@ -501,8 +499,7 @@ public class Main {
 			 
 			 url = GnwSettings.getInstance().getURL(settings.getString("outputPath") + "/" + id + ".gml");
 			 
-			 if (inetwork != null) inetwork.saveGML(url);
-			 else if (gnetwork != null) gnetwork.saveGML(url);
+			 inetwork.saveGML(url);
 		 }
 		 else if (settings.getInt("outputNetworkFormat") == ImodNetwork.DOT)
 		 {
@@ -510,12 +507,11 @@ public class Main {
 			 
 			 url = GnwSettings.getInstance().getURL(settings.getString("outputPath") + "/" + id + ".dot");
 			 
-			 if (inetwork != null) inetwork.saveDOT(url);
-			 else if (gnetwork != null) gnetwork.saveDOT(url);
+			 inetwork.saveDOT(url);
 		 }	 
 		 else if (settings.getInt("outputNetworkFormat") == GeneNetwork.SBML)
 		 {
-			 if (inetwork != null)
+			 if (! (inetwork instanceof GeneNetwork))
 			 {
 				 // set dynamical model
 				 

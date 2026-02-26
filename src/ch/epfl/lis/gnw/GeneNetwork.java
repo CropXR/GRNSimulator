@@ -290,7 +290,7 @@ public class GeneNetwork extends ImodNetwork {
 		for (int g=0; g < size; g++) 
 		{
 			String id = species.get(g).getId();
-			Node node = createNode(species, id);
+			Node node = GrnNodeFactory.createNode(id, this);
 			if( node != null)
 			{
 				node.setLabel(species.get(g).getId());
@@ -354,30 +354,6 @@ public class GeneNetwork extends ImodNetwork {
 	}
 
 
-	private Node createNode(List<Species> species, String id)
-	{
-		GrnNode node = null;
-		if (id.contains("ConstantEnv"))
-		{
-			node = new ConstantEnvironment(this);
-		}
-		else if (id.contains("LinearEnv"))
-		{
-			node = new LinearEnvironment(this);
-		}
-		else if (id.contains("OscillatingEnv"))
-		{
-			node = new OscillatingEnvironment(this);
-		}
-		else if (!id.equals("_void_") &&!id.equals("_time_") )
-		{
-			node = new HillGene(this);
-		}
-
-		return node;
-	}
-
-	
 	// ----------------------------------------------------------------------------
 
 	/**
@@ -543,8 +519,7 @@ public class GeneNetwork extends ImodNetwork {
 			{
 				if (!environment)
 				{
-					//We don't have an environment yet. Create a "time" node to ensure
-					//We can use time explicitly.
+					//We don't have an environment yet Create a "time" node to ensure we can use time explicitly.
 					Environment dummy = new LinearEnvironment(this, new int[] {}, "_time_", 0, 1);
 					ArrayList<String> names = new ArrayList<String>(); // parameters names
 					ArrayList<Double> values = new ArrayList<Double>(); // parameters values
