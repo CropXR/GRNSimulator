@@ -83,11 +83,11 @@ tsDualKnockouts = 0
 
 # Number of time series experiments (different perturbations are used for each time series)
 numTimeSeries = 10
+inititalConditionStdev = 1.0
 # Default max duration time in time-series experiments (must be consistent with numTimePoints_ and dt_)
-maxtTimeSeries = 1000
+maxtTimeSeries = 250
 # Time step for the time series (numTimePoints_ = (int)Math.round(maxtTimeSeries/dt) + 1)
-dt = 50
-
+dt = 1
 
 #========================================================================
 # MULTIFACTORIAL PERTURBATIONS 

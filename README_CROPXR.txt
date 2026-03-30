@@ -28,3 +28,14 @@ java -jar CropXRSimulator.jar --simulate -c sandbox/settings.txt --input-net tes
 
 #2) exporting SBML doesn't work as expected when proteins are modeled (modelTranslation = 1 in the settings file), because proteins weren't added as separate entities in the SBML by GeneNetWeaver.
 #If important, I could spend more time to get that to work as well.
+
+#It is also possible to create environments and simulate the effects of them. Environments are modeled as special input nodes, with some fixed dynamics. Environments can be specified using 
+#an xml-file that can be loaded either in the create step, or in the transform step, like this --environment-file environment.xml
+
+java -jar CropXRSimulator.jar --create -c sandbox/settings.txt --network-type=1 --num-genes=1000 --sparsity=0.25 --num-modules=10 --output-net-format=1 --keep-self-interactions 
+--output-path sandbox --network-name test_scalefree --environment-file environment.xml
+
+java -jar CropXRSimulator.jar --transform --input-net sandbox/test_scalefree.gml --output-net-format=4 -c sandbox/settings.txt --environment-file environment.xml
+
+For an example xml-file, take a look at sandbox/testEnvs.xml, where 3 types of enironments are defined. For every environment target genes must be defined, either explicitly using the <targets>
+field, or by specifying numTargets directly, in which case the targets are chosen randomly. Every environment has specific parameters, which should be self-explanatory.

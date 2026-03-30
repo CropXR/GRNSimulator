@@ -16,13 +16,10 @@ import org.apache.commons.math.ConvergenceException;
 
 import ch.epfl.lis.gnw.BenchmarkGeneratorDream4;
 import ch.epfl.lis.gnw.CancelException;
-import ch.epfl.lis.gnw.ConstantEnvironment;
 import ch.epfl.lis.gnw.EnvironmentParser;
 import ch.epfl.lis.gnw.GeneNetwork;
 import ch.epfl.lis.gnw.GnwSettings;
-import ch.epfl.lis.gnw.LinearEnvironment;
 import ch.epfl.lis.gnw.NetworkCreator;
-import ch.epfl.lis.gnw.OscillatingEnvironment;
 import ch.epfl.lis.gnw.Parser;
 import ch.epfl.lis.gnw.SubnetExtractor;
 import ch.epfl.lis.gnw.evaluation.PerformanceEvaluator;
@@ -222,6 +219,14 @@ public class Main {
         inputNetworkFormat.setHelp("Specifies the format of the network to load (0=TSV, 1=GML, 2=DOT 3=TSV DREAM, 4=SBML).");
 		jsap.registerParameter(inputNetworkFormat);
 		
+		FlaggedOption environmentFile = new FlaggedOption("environment")
+				.setStringParser(JSAP.STRING_PARSER)
+				.setDefault("")
+				.setRequired(false)
+				.setLongFlag("environment-file");
+		environmentFile.setHelp("Specifies the environment file that specifies environments used for dynamical simualtion (in xml format).");
+		jsap.registerParameter(environmentFile);
+		
         Switch extractAllRegulators = new Switch("extractAllRegulators")
 									.setLongFlag("extract-all-regulators");
         extractAllRegulators.setHelp("Extracts all the regulators of the network.");
@@ -361,7 +366,7 @@ public class Main {
     	log_.log(Level.INFO, "Examples:");
     	log_.log(Level.INFO, "  Extraction: java -jar CropXRSimulator.jar --extract -c settings.txt --input-net ecoli_transcriptional_network_regulonDB_6_7.tsv --random-seed --greedy-selection --subnet-size=50 --num-subnets=10 --output-net-format=4 --keep-self-interactions --output-path .");
     	log_.log(Level.INFO, "  Creation: java -jar CropXRSimulator.jar --create -c settings.txt --random-seed --output-net-format=4 --keep-self-interactions --output-path .");
-    	log_.log(Level.INFO, "  Simulation: java -jar CropXRSimulator.jar --simulate -c settings.txt --input-net InSilicoSize10-Yeast1.xml --output-path /home/thomas/devel/gnw-3_0/datasets");
+    	log_.log(Level.INFO, "  Simulation: java -jar CropXRSimulator.jar --simulate -c settings.txt --input-net InSilicoSize10-Yeast1.xml --environment-file environments.xml --output-path /home/thomas/devel/gnw-3_0/datasets");
     	log_.log(Level.INFO, "  Evaluation: java -jar CropXRSimulator.jar --evaluate --goldstandard InSilicoSize10-Yeast1.xml --prediction InSilicoSize10-Yeast1-prediction.tsv");
     	log_.log(Level.INFO, "  Conversion (here TSV to DOT format): java -jar CropXRSimulator.jar --transform -c settings.txt --input-net ecoli_transcriptional_network_regulonDB_6_7.tsv --output-net-format=2");
     	log_.log(Level.INFO, "");
@@ -463,11 +468,17 @@ public class Main {
 		}
 		
 		ImodNetwork inetwork = null;
+		GeneNetwork gnetwork = null;
 		String id = null;
 		URL url = null;
-			
+		URL environmentUrl = null;
+
 		//parse any environment
-		url = GnwSettings.getInstance().getURL(settings.getString("outputPath") + "/" + "testEnvs.xml");
+		if (settings.getString("environment") != "")
+		{
+			// If we are here it means that the networks must be saved to SBML files
+			environmentUrl = GnwSettings.getInstance().getURL(settings.getString("environment"));
+		}
 		
 		if (element instanceof StructureElement)
 		{
@@ -476,21 +487,28 @@ public class Main {
 		}
 		else if (element instanceof DynamicalModelElement)
 		{
-			inetwork = ((DynamicalModelElement)element).getGeneNetwork();
-			id = inetwork.getId();
+			gnetwork = ((DynamicalModelElement)element).getGeneNetwork();
+			id = gnetwork.getId();
+			if(environmentUrl != null)
+			{
+				EnvironmentParser.parse(environmentUrl.getFile(),gnetwork);
+			}
 		}
 		
-		EnvironmentParser.parse(url.getFile(),inetwork);
-
 		if (settings.getInt("outputNetworkFormat") == ImodNetwork.TSV)
 		{
 			url = GnwSettings.getInstance().getURL(settings.getString("outputPath") + "/" + id + ".tsv");
-			inetwork.saveTSV(url);
+			if (inetwork != null) inetwork.saveTSV(url);
+			else if (gnetwork != null) gnetwork.saveTSV(url);		
 		}
 		else if (settings.getInt("outputNetworkFormat") == 3) // TSV with null interactions written
 		{
 			url = GnwSettings.getInstance().getURL(settings.getString("outputPath") + "/" + id + ".tsv");
-			Parser parser = new Parser(inetwork, url);	
+			Parser parser = null;
+			
+			if (inetwork != null) parser = new Parser(inetwork, url);
+			else if (gnetwork != null) parser = new Parser(gnetwork, url);
+			
 			parser.writeGoldStandard();
 		 }
 		 else if (settings.getInt("outputNetworkFormat") == ImodNetwork.GML)
@@ -499,7 +517,8 @@ public class Main {
 			 
 			 url = GnwSettings.getInstance().getURL(settings.getString("outputPath") + "/" + id + ".gml");
 			 
-			 inetwork.saveGML(url);
+			 if (inetwork != null) inetwork.saveGML(url);
+			 else if (gnetwork != null) gnetwork.saveGML(url);	
 		 }
 		 else if (settings.getInt("outputNetworkFormat") == ImodNetwork.DOT)
 		 {
@@ -507,14 +526,15 @@ public class Main {
 			 
 			 url = GnwSettings.getInstance().getURL(settings.getString("outputPath") + "/" + id + ".dot");
 			 
-			 inetwork.saveDOT(url);
+	
+			 if (inetwork != null) inetwork.saveDOT(url);
+			 else if (gnetwork != null) gnetwork.saveDOT(url);
 		 }	 
 		 else if (settings.getInt("outputNetworkFormat") == GeneNetwork.SBML)
 		 {
-			 if (! (inetwork instanceof GeneNetwork))
+			 if (inetwork != null)
 			 {
-				 // set dynamical model
-				 
+				 // not yet a dynamical model, create it			 
   				if (!settings.userSpecified("keepSelfInteractions"))
   				{
   					log_.log(Level.INFO, "Removing autoregulatory interactions from " + id);
@@ -524,9 +544,10 @@ public class Main {
   				log_.log(Level.INFO, "Setting dynamical model for " + id);
   				GeneNetwork grn = new GeneNetwork(inetwork);
   				
-  				grn.addEnvironment(new ConstantEnvironment(grn, new int[]{8}, "ConstantEnv1", 0.5));
-  				grn.addEnvironment(new LinearEnvironment(grn, new int[] {9}, "LinearEnv2", 1, 0.001));
-  				grn.addEnvironment(new OscillatingEnvironment(grn, new int[] {7}, "OscillatingEnv3", 0, 0.01, 0.4,0.5));
+  				if(environmentUrl != null)
+  				{
+  					EnvironmentParser.parse(environmentUrl.getFile(),grn);
+  				}
 
   				grn.randomInitialization();
   			

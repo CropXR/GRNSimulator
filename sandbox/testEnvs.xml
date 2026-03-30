@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<Environments>
+  <Environment label="LinearEnv1" type="LinearEnv">
+  <listOfParameters>
+    <parameter id="startVal" value="0.0" />
+    <parameter id="rate" value="0.001" />
+  </listOfParameters>
+  <targets>1 2 3 </targets>
+  </Environment>
+  <Environment label="ConstantEnv2" type="ConstantEnv" numTargets = "1"> 
+    <listOfParameters>
+    <parameter id="envValue" value="1" />
+  </listOfParameters>
+  </Environment>
+  <Environment label="OscillatingEnv3" type="OscillatingEnv" numTargets = "4">
+  <listOfParameters>
+    <parameter id="phase" value="0.0" />
+    <parameter id="frequency" value="0.005" />
+    <parameter id="amplitude" value="0.2" />
+    <parameter id="offset" value="0.5" />
+  </listOfParameters> 
+  </Environment>
+</Environments>

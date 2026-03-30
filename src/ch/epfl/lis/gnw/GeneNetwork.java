@@ -348,6 +348,12 @@ public class GeneNetwork extends ImodNetwork {
 				parameterNames.clear(); // reset (they were not copied)
 				parameterValues.clear();
 			}
+			if(getGeneReactantId(r).equals("_time_"))
+			{
+				inputIndexes = new ArrayList<GrnNode>(); // don't clear because the reference was copied to the gene
+				parameterNames.clear(); // reset (they were not copied)
+				parameterValues.clear();
+			}
 		}
 		setEdgeTypesAccordingToDynamicalModel();
 		signed_ = true;
