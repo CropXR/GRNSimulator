@@ -17,6 +17,10 @@ public class GrnNodeFactory
 		{
 			node = new OscillatingEnvironment(grn);
 		}
+		else if (id.contains("StepEnv"))
+		{
+			node = new StepEnvironment(grn);
+		}
 		else if (!id.equals("_void_") &&!id.equals("_time_") )
 		{
 			node = new HillGene(grn);

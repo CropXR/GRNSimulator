@@ -16,8 +16,16 @@
   <listOfParameters>
     <parameter id="phase" value="0.0" />
     <parameter id="frequency" value="0.005" />
-    <parameter id="amplitude" value="0.2" />
+    <parameter id="amplitude" value="0.5" />
     <parameter id="offset" value="0.5" />
   </listOfParameters> 
+  </Environment>
+  <Environment label="StepEnv1" type="StepEnv" numTargets = "6">
+  <listOfParameters>
+    <parameter id="firstEnvValue" value="0.0" />
+    <parameter id="secondEnvValue" value="1.0" />
+    <parameter id="stepTime" value="500" />
+	<parameter id="steepness" value="10" />
+  </listOfParameters>
   </Environment>
 </Environments>
