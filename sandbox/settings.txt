@@ -41,20 +41,20 @@ numSeedsFromStronglyConnectedComponents = 0
 # STEADY-STATE EXPERIMENTS
 
 # Set true (1) to generate steady states for knockouts, otherwise set false (0)
-ssKnockouts = 1
+ssKnockouts = 0
 # Generate steady states for knockdowns
-ssKnockdowns = 1
+ssKnockdowns = 0
 # Generate steady states for multifactorial perturbations
-ssMultifactorial = 1
+ssMultifactorial = 0
 # Generate steady states for perturbations as used in the DREAM4 time series
 ssDREAM4TimeSeries = 0
 # Generate steady states for dual knockouts
-ssDualKnockouts = 1
+ssDualKnockouts = 0
 
 # For deterministic simulations (ODEs), we return the steady-states as soon as convergence is reached.
 # If there is no convergence until time maxtSteadyStateODE_, the values at this point are returned and a
 # warning message is displayed. 
-maxtSteadyStateODE = 2000
+maxtSteadyStateODE = 100
 
 # For stochastic simulations (SDEs): If maxtSteadyStateSDE < 0, we return the state at time 1.5*t_ODE, 
 # where t_ODE is the time of convergence for the deterministic simulation of the same perturbation.
@@ -71,29 +71,34 @@ mintSDE = 100
 # TIME-SERIES EXPERIMENTS
 
 # Set true (1) to generate time series for knockouts, otherwise set false (0)
-tsKnockouts = 0
+tsKnockouts = 1
 # Generate time series for knockdowns
 tsKnockdowns = 0
 # Generate time series for multifactorial perturbations
 tsMultifactorial = 0
 # Generate time series as in DREAM4
-tsDREAM4TimeSeries = 1
+tsDREAM4TimeSeries = 0
 # Generate time series for dual knockouts
-tsDualKnockouts = 0
+tsDualKnockouts = 1
 
 # Number of time series experiments (different perturbations are used for each time series)
-numTimeSeries = 10
-inititalConditionStdev = 1.0
+numTimeSeries = 1
+#inititalConditionStdev = 0.025
 # Default max duration time in time-series experiments (must be consistent with numTimePoints_ and dt_)
-maxtTimeSeries = 250
+maxtTimeSeries = 100
 # Time step for the time series (numTimePoints_ = (int)Math.round(maxtTimeSeries/dt) + 1)
 dt = 1
 
+# standard deviation for different initial conditions, when used
+inititalConditionStdev = 0.33
 #========================================================================
 # MULTIFACTORIAL PERTURBATIONS 
+#Under or overexpression factors used in the knockdown experiments. May be a in a comma-separated list
+overexpressionFactors = 0.5
+
 
 # Standard deviation for multifactorial perturbations
-multifactorialStdev = 0.25
+multifactorialStdev = 0
 # The probability that a gene is perturbed (only applies for DREAM4 time series)
 perturbationProbability = 0.33
 # Set true to load the multifactorial perturbations from existing files
@@ -127,7 +132,7 @@ relativePrecision = 0.001
 # STOCHASTIC MODEL (SDE)
 
 # If set true, a stochastic simulation of the experiments is done using the SDE model
-simulateSDE = 1
+simulateSDE = 0
 # Time step used for integrating SDEs (internal dt used for integration, the measured points are defined by numMeasuredPoints)
 timeStepSDE = 1.0
 # Coefficient of the noise term of the SDEs
@@ -142,7 +147,7 @@ addNormalNoise = 0
 # Set true to add lognormal noise to the data
 addLognormalNoise = 0
 # Set true to use a realistic model of microarray noise, similar to a mix of normal and lognormal
-addMicroarrayNoise = 1
+addMicroarrayNoise = 
 # The standard deviation of the normal noise
 normalStdev = 0.025
 # The standard deviation of the lognormal noise

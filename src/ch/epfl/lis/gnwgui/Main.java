@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -400,7 +401,7 @@ public class Main {
 		return (count == 1);
 	}
 	
-	public static NetworkElement createNetwork(JSAP jsap, JSAPResult settings) throws ParseException
+	public static NetworkElement createNetwork(JSAP jsap, JSAPResult settings) throws ParseException, IllegalArgumentException, IOException, URISyntaxException
 	{
 		NetworkElement element = null; // required, will contain the network
 		String name = null; // optional
@@ -421,7 +422,7 @@ public class Main {
 			NetworkCreator.NetworkType networkType = NetworkCreator.NetworkType.values()[type];
 			log_.log(Level.INFO, "Start network creation of type " + networkType.name());
 			NetworkCreator networkCreator = new NetworkCreator(networkType, settings.getInt("numGenes"), settings.getInt("numModules"), 
-					settings.getDouble("sparsity"), settings.getDouble("deltaIn"), settings.getDouble("deltaOut"),settings.getDouble("groupingBias"));
+					settings.getDouble("sparsity"), settings.getDouble("deltaIn"), settings.getDouble("deltaOut"),settings.getDouble("groupingBias"), settings.getString("outputPath"));
 			ImodNetwork network = networkCreator.createNetwork();
 			network.setId(name);
 			element= new StructureElement(name);

@@ -382,10 +382,8 @@ public class GnwSettings {
 		maxtTimeSeries_ = Integer.valueOf(gnwSettings.getProperty("maxtTimeSeries"));
 		dt_ = Integer.valueOf(gnwSettings.getProperty("dt"));
 		
-		if(gnwSettings.getProperty("inititalConditionStdev") != null )
-		{
-			inititalConditionStdev_ = Double.valueOf(gnwSettings.getProperty("inititalConditionStdev"));
-		}
+	
+		inititalConditionStdev_ = Double.valueOf(gnwSettings.getProperty("inititalConditionStdev"));
 		
 		int numMeasuredPoints = (int)Math.round(maxtTimeSeries_/dt_) + 1;
 		if (dt_*(numMeasuredPoints-1) != maxtTimeSeries_)
@@ -402,11 +400,8 @@ public class GnwSettings {
 		minFractionDirectTargets_ = Double.valueOf(gnwSettings.getProperty("minFractionDirectTargets"));
 		maxFractionDirectTargets_ = Double.valueOf(gnwSettings.getProperty("maxFractionDirectTargets"));
 		
-		if( gnwSettings.getProperty("overexpressionFactors") != null)
-		{
-			String overExpString =  gnwSettings.getProperty("overexpressionFactors");
-			setOverExpressionFactors(parseDoubleList(overExpString));
-		}
+		String overExpString =  gnwSettings.getProperty("overexpressionFactors");
+		setOverExpressionFactors(parseDoubleList(overExpString));
 		
 		// DETERMINISTIC MODEL (ODE)
 		simulateODE_ = gnwSettings.getProperty("simulateODE").equals("0") ?  false : true;

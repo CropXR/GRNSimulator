@@ -1,6 +1,11 @@
 
 package ch.epfl.lis.gnw;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,6 +17,8 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
+import org.apache.commons.logging.Log;
 
 import ch.epfl.lis.imod.ImodNetwork;
 import ch.epfl.lis.networks.Edge;
@@ -33,7 +40,8 @@ public class NetworkCreator {
     private Double delta_in_;
     private Double delta_out_;
     private Double grouping_bias_;
-
+    private String output_path_;
+    
     private class MyEdge
     {
     	public MyEdge(Integer in, Integer out) 
@@ -73,7 +81,7 @@ public class NetworkCreator {
 		Random seed = new Random();
 		HashSet<MyEdge> edges = new HashSet<MyEdge>();
         HashSet<Integer> vertices = new HashSet<>();
-        
+
         while (vertices.size() < numGenes_) 
   		{
               double r = seed.nextDouble();
@@ -112,7 +120,7 @@ public class NetworkCreator {
     }
     
     
-    private ImodNetwork createModularScaleFreeNetwork() throws ParseException
+    private ImodNetwork createModularScaleFreeNetwork() throws ParseException, IOException, URISyntaxException
     {
 		ImodNetwork network = new ImodNetwork();
 		network.setSigned(true);
@@ -120,6 +128,10 @@ public class NetworkCreator {
         HashSet<Integer> vertices = new HashSet<>(Arrays.asList(0, 1, 2)); 
 		HashMap<Integer, HashSet<Integer>> modules = new HashMap<>();
 		Random seed;
+		URL url = GnwSettings.getInstance().getURL(output_path_ + "/" + network.getId() + "gene_modules.tsv");
+		FileWriter fw = new FileWriter(new File(url.toURI()), false);
+    	fw.write("Gene\tModule\n");
+
 		if(GnwSettings.getInstance().getRandomSeed() == -1)
 		{
 			seed = new Random();
@@ -129,24 +141,31 @@ public class NetworkCreator {
 			 seed = new Random(GnwSettings.getInstance().getRandomSeed()); 
 		}
 		
-		for ( int indx = 0; indx < 3; indx++)
+		if (numModules_ == 1)
 		{
-			if (numModules_ == 1)
-			{
-				modules.put(0, new HashSet<>(Arrays.asList(0, 1, 2)));
-
-			}
-			else if (numModules_ == 2)
-			{
-				modules.put(0, new HashSet<>(Arrays.asList(0, 2)));
-				modules.put(1, new HashSet<>(Arrays.asList(1)));
-			}
-			else
-			{
-				modules.put(indx, new HashSet<>(Arrays.asList(indx)));
-			}				
+			modules.put(0, new HashSet<>(Arrays.asList(0, 1, 2)));
+        	fw.write("0\t0\n");
+        	fw.write("1\t0\n");
+        	fw.write("2\t0\n");
 		}
-		
+		else if (numModules_ == 2)
+		{
+			modules.put(0, new HashSet<>(Arrays.asList(0, 2)));
+			modules.put(1, new HashSet<>(Arrays.asList(1)));
+        	fw.write("0\t0\n");
+        	fw.write("1\t1\n");
+        	fw.write("2\t0\n");
+		}
+		else
+		{
+			modules.put(0, new HashSet<>(Arrays.asList(0)));
+			modules.put(1, new HashSet<>(Arrays.asList(1)));	
+			modules.put(2, new HashSet<>(Arrays.asList(2)));	
+        	fw.write("0\t0\n");
+        	fw.write("1\t1\n");
+        	fw.write("2\t2\n");
+		}
+				
 		//Start with small connected component
         List<Integer> edge_sources = new ArrayList<>(vertices);
         List<Integer> edge_targets = vertices.stream().map(i -> (i + 1) % vertices.size()).collect(Collectors.toList()); // edge targets
@@ -168,7 +187,7 @@ public class NetworkCreator {
         while (vertices.size() < numGenes_) 
 		{
             double r = seed.nextDouble();
-            int v, w;
+            Integer v, w;
 
             if( r < sparsity_)
             {
@@ -177,7 +196,7 @@ public class NetworkCreator {
             	vertices.add(v);
             	degrees.get("out").put(v, 0);
             	degrees.get("in").put(v, 0);
-            	int k_v = seed.nextInt(numModules_);
+            	Integer k_v = seed.nextInt(numModules_);
             	modules.computeIfAbsent(k_v, k -> new HashSet<>()).add(v);
 
             	// pick w by out degree biased towards type k_v
@@ -187,6 +206,7 @@ public class NetworkCreator {
             		p.add((modules.get(k_v).contains(n) ? grouping_bias_ : 1) * (degrees.get("out").get(n) + delta_out_));
             	}
             	w = weightedRandomChoice(p, seed);
+            	fw.write(v.toString() + "\t" + k_v.toString() + "\n");
             }
             else 
             {
@@ -219,7 +239,7 @@ public class NetworkCreator {
  		}
              
         GeneNetwork geneNetwork = createGeneNetwork(network, edges, vertices, seed);
-             
+        fw.close();
 		return geneNetwork;
     }
 
@@ -282,7 +302,7 @@ public class NetworkCreator {
 	// PUBLIC METHODS
 	
 	/** Constructor */
-	public NetworkCreator(NetworkType type, Integer numGenes, Integer numModules, Double sparsity, Double delta_in, Double delta_out, Double grouping_bias ) 
+	public NetworkCreator(NetworkType type, Integer numGenes, Integer numModules, Double sparsity, Double delta_in, Double delta_out, Double grouping_bias, String outputPath ) 
 	{
 		networkType_ = type;
 		numGenes_ = numGenes;
@@ -291,9 +311,10 @@ public class NetworkCreator {
 		delta_in_ = delta_in;
 		delta_out_ = delta_out;
 		grouping_bias_ = grouping_bias;
+		output_path_ = outputPath;
 	}
 	
-	public ImodNetwork createNetwork() throws ParseException, IllegalArgumentException
+	public ImodNetwork createNetwork() throws ParseException, IllegalArgumentException, IOException, URISyntaxException
 	{
 		ImodNetwork network = new ImodNetwork();
 		switch (networkType_)

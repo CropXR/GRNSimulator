@@ -88,9 +88,12 @@ maxtTimeSeries = 1000
 # Time step for the time series (numTimePoints_ = (int)Math.round(maxtTimeSeries/dt) + 1)
 dt = 50
 
-
+# standard deviation for different initial conditions, when used
+inititalConditionStdev = 0.33
 #========================================================================
 # MULTIFACTORIAL PERTURBATIONS 
+#Under or overexpression factors used in the knockdown experiments. May be a in a comma-separated list
+overexpressionFactors = 0.5
 
 # Standard deviation for multifactorial perturbations
 multifactorialStdev = 0.25
