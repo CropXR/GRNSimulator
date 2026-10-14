@@ -1,11 +1,11 @@
-##Licensing: 
+## Licensing: 
 This repository is based on GeneNetWeaver, whose original code is licensed under the MIT License. The upstream copyright and license notices are retained. 
 KeyGene's original additions and modifications, all commits in the CropXRSimulator branch, from April 8, 2025 onwards, are licensed under LGPL-3.0-only. 
 See LICENSES/ for the applicable license texts. Files may contain both MIT-licensed upstream code and LGPL-licensed modifications.
 
 ## Usage (KeyGene's additions only, for the rest we refer to the GeneNetWeaver manual in the doc/ directory)
 
-#Network creation
+# Network creation
 
 In GeneNetWeaver, the workflow to simulate a network is first to extract it from an existing "real" GRN, export the network and then simulate it. 
 A workflow was added to create a network given a network generating algorithm. This can be done with the following command:
@@ -30,7 +30,7 @@ And finally, you can simulate the network like this:
 
 java -jar CropXRSimulator.jar --simulate -c sandbox/settings.txt --input-net test_scalefree.xml --output-path /data/interos/mho/tools/genenetweaver/sandbox
 
-#SBML export
+# SBML export
 
 The SBML-file you get out GeneNetWeaver, is now a valid SBML that you can import elsewhere and simulate it. A small python file is available 
 that does this (bin/importSBML.py). It uses tellurium 
@@ -41,7 +41,7 @@ IMPORTANT NOTES ON SBML EXPORTING:
 Exporting SBML doesn't work as expected when proteins are modeled (modelTranslation = 1 in the settings file), because proteins weren't added as separate entities 
 in the SBML by GeneNetWeaver.
 
-#Environments
+# Environments
 
 It is also possible to create environments and simulate the effects of them. Environments are modeled as special input nodes, with some fixed dynamics. 
 Environments can be specified using an xml-file that can be loaded either in the create step, or in the transform step, like this --environment-file environment.xml
