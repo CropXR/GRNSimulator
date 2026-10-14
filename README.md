@@ -1,8 +1,59 @@
-GeneNetWeaver
-=============
+##Licensing: 
+This repository is based on GeneNetWeaver, whose original code is licensed under the MIT License. The upstream copyright and license notices are retained. 
+KeyGene's original additions and modifications, all commits in the CropXRSimulator branch, from April 8, 2025 onwards, are licensed under LGPL-3.0-only. 
+See LICENSES/ for the applicable license texts. Files may contain both MIT-licensed upstream code and LGPL-licensed modifications.
 
-Numerous methods have been developed for reverse engineering gene regulatory networks from expression data. Unraveling and modeling these networks is of primary importance for improving our understanding of biological organisms. However, both their absolute and comparative performance remain poorly understood. **The aim of this project is to provide benchmarks and tools for rigorous testing of methods for gene network inference**.
+## Usage (KeyGene's additions only, for the rest we refer to the GeneNetWeaver manual in the doc/ directory)
 
-Our framework is available as an **open-source and intuitive Java software called GeneNetWeaver (GNW)**. GNW is the first tool that provides methods for both in silico benchmark generation and performance profiling of network inference algorithms. GNW has been developed to easily generate **detailed models of gene regulatory networks**. One of the main advantages of using in silico is that perturbation experiments can be quickly and easily simulated to produce expression data unlike in vivo experiments, which are usually expensive and time consuming. Moreover, both **quantity and quality of the expression data** generated can be controled (e.g. by varying the amount of molecular and/or measurement noise). Finally expression data are used by inference methods to reconstruct (or reverse engineer) the underlying in silico networks, before quantitatively evaluating the **performance of the methods** by comparing target (unknown in in vivo experiments) and predicted networks.
+#Network creation
 
-Moreover, we have used GNW to organize three editions of the [DREAM challenge](http://tschaffter.ch/projects/gnw/#DREAM), an annual community-wide network inference challenge. In this context, GNW was used to identify **systematic errors** of network inference algorithms, thus providing useful insights into how to improve their performance.
+In GeneNetWeaver, the workflow to simulate a network is first to extract it from an existing "real" GRN, export the network and then simulate it. 
+A workflow was added to create a network given a network generating algorithm. This can be done with the following command:
+
+java -jar CropXRSimulator.jar --create -c sandbox/settings.txt --network-type=1 --num-genes=1000 --sparsity=0.25 --num-modules=10 --output-net-format=1 --keep-self-interactions 
+--output-path sandbox --network-name test_scalefree
+
+Here the network-type specifies the algorithm to use. For now, we implemented random (network-type=0) and modular-scale-free (network-type=1). Random isn't advised 
+except for comparison purposes. The sparsity flag will determine the fraction between edges and nodes (with 0.25 around 3 times as many edges as nodes, 
+as this parameter determines the probability of adding a new edge compared to adding a new node. The number of modules determines how many distinct modules are created. 
+Nodes within modules have a higher probability to be connected compared to nodes in different modules. There are some different options for output-net-format. 
+To get a dynamic GRN that you can simulate, use --output-net-format=4 (to get SBML). To get a static network (which is useful to study the network characteristics
+we recommend  --output-net-format=1 (GML). A python script is available to analyze the static network and get some key characteristics:
+
+python bin/analyzeGraph.py sandbox/test_scalefree.gml
+
+Note that some python packages, especially matplotlib and igraph need to be installed. If you are happy with the network you can create a dynamic network out of it like this:
+
+java -jar CropXRSimulator.jar --transform --input-net sandbox/test_scalefree.gml --output-net-format=4 -c sandbox/settings.txt
+
+And finally, you can simulate the network like this:
+
+java -jar CropXRSimulator.jar --simulate -c sandbox/settings.txt --input-net test_scalefree.xml --output-path /data/interos/mho/tools/genenetweaver/sandbox
+
+#SBML export
+
+The SBML-file you get out GeneNetWeaver, is now a valid SBML that you can import elsewhere and simulate it. A small python file is available 
+that does this (bin/importSBML.py). It uses tellurium 
+(https://tellurium.readthedocs.io/en/latest/installation.html). You can also use that to export the file to Matlab. 
+
+IMPORTANT NOTES ON SBML EXPORTING:
+
+Exporting SBML doesn't work as expected when proteins are modeled (modelTranslation = 1 in the settings file), because proteins weren't added as separate entities 
+in the SBML by GeneNetWeaver.
+
+#Environments
+
+It is also possible to create environments and simulate the effects of them. Environments are modeled as special input nodes, with some fixed dynamics. 
+Environments can be specified using an xml-file that can be loaded either in the create step, or in the transform step, like this --environment-file environment.xml
+
+java -jar CropXRSimulator.jar --create -c sandbox/settings.txt --network-type=1 --num-genes=1000 --sparsity=0.25 --num-modules=10 --output-net-format=1 --keep-self-interactions 
+--output-path sandbox --network-name test_scalefree --environment-file environment.xml
+
+java -jar CropXRSimulator.jar --transform --input-net sandbox/test_scalefree.gml --output-net-format=4 -c sandbox/settings.txt --environment-file environment.xml
+
+Because environments can be added in the transform step, different simulations can be run with the same network, but different environment types. Alternatively, you can take 
+the .xml file that is generated by the transform step and change only the parameters of the environments.
+
+For an example xml-file, take a look at sandbox/testEnvs.xml, where 4 types of environments are defined. For every environment target genes must be defined, either explicitly using the <targets>
+field, or by specifying numTargets directly, in which case the targets are chosen randomly. Every environment has specific parameters, which should be self-explanatory.
+
