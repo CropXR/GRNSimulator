@@ -1,9 +1,11 @@
 ## Licensing: 
 This repository is based on GeneNetWeaver, whose original code is licensed under the MIT License. The upstream copyright and license notices are retained. 
-KeyGene's original additions and modifications, all commits in the CropXRSimulator branch, from April 8, 2025 onwards, are licensed under LGPL-3.0-only. 
-See LICENSES/ for the applicable license texts. Files may contain both MIT-licensed upstream code and LGPL-licensed modifications.
+KeyGene's original additions and modifications, all commits in the CropXRSimulator branch, from April 8, 2025 onwards, are licensed under AGPL-3.0-only. 
+See LICENSES/ for the applicable license texts. Files may contain both MIT-licensed upstream code and AGPL-licensed modifications.
 
-## Usage (KeyGene's additions only, for the rest we refer to the GeneNetWeaver manual in the doc/ directory)
+## Usage 
+
+This document describes KeyGene's additions only, for the rest we refer to the GeneNetWeaver manual in the doc/ directory
 
 ### Network creation
 
